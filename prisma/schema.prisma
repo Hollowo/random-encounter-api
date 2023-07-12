@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,70 +7,66 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  USER
-  AMDIN
-}
-
 model Address {
-  id          String   @id @map("ID")
-  createdAt   DateTime @default(now()) @map("CREATED_AT")
-  description String   @map("DESCRIPTION")
-  cityId      String   @map("CITY_ID")
-  provinceId  String   @map("PROVINCE_ID")
-  countryId   String   @map("COUNTRY_ID")
+  id          String   @id @map("id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  description String   @map("description")
+  cityId      String   @map("city_id")
+  provinceId  String   @map("province_id")
+  countryId   String   @map("country_id")
   city        City     @relation(fields: [cityId], references: [id])
-  province    Province @relation(fields: [provinceId], references: [id])
   country     Country  @relation(fields: [countryId], references: [id])
+  province    Province @relation(fields: [provinceId], references: [id])
+  user        User[]
 
-  user User[]
-
-  @@map("ADDRESS")
+  @@map("address")
 }
 
 model Country {
-  id   String @id @map("ID")
-  name String @map("NAME")
-  flag String @map("FLAG")
-
+  id       String     @id @map("id")
+  name     String     @map("name")
+  flag     String     @map("flag")
   Address  Address[]
   Province Province[]
 
-  @@map("COUNTRY")
+  @@map("country")
 }
 
 model Province {
-  id        String  @id @map("ID")
-  name      String  @map("NAME")
-  countryId String  @map("COUNTRY_ID")
-  country   Country @relation(fields: [countryId], references: [id])
+  id        String    @id @map("id")
+  name      String    @map("name")
+  countryId String    @map("country_id")
+  Address   Address[]
+  City      City[]
+  country   Country   @relation(fields: [countryId], references: [id])
 
-  Address Address[]
-  City    City[]
-
-  @@map("PROVINCE")
+  @@map("province")
 }
 
 model City {
-  id         String   @id @map("ID")
-  name       String   @map("NAME")
-  provinceId String   @map("PROVINCE_ID")
-  province   Province @relation(fields: [provinceId], references: [id])
+  id         String    @id @map("id")
+  name       String    @map("name")
+  provinceId String    @map("province_id")
+  Address    Address[]
+  province   Province  @relation(fields: [provinceId], references: [id])
 
-  Address Address[]
-
-  @@map("CITY")
+  @@map("city")
 }
 
 model User {
-  id        String   @id @map("ID")
-  createdAt DateTime @default(now()) @map("CREATED_AT")
-  name      String   @map("NAME")
-  email     String   @map("EMAIL")
-  addressId String   @map("ADDRESS_ID")
-  address   Address  @relation(fields: [addressId], references: [id])
+  id         String   @id @map("id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  name       String   @map("name")
+  email      String   @map("email")
+  role       Role     @map("role")
+  authorized Boolean  @map("authorized")
+  addressId  String   @map("address_id")
+  address    Address  @relation(fields: [addressId], references: [id])
 
-  role Role @map("ROLE")
+  @@map("user")
+}
 
-  @@map("USER")
+enum Role {
+  USER
+  ADMIN
 }

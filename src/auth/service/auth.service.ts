@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from 'src/database/prisma.service';
 import { CreateCompleteUserBody, CreateUserBody } from '../middlewares/user';
-import { randomUUID } from 'node:crypto'
+import { randomUUID } from 'node:crypto';
 import { CompleteUserDTO, UserDTO } from '../dtos/user';
 import { AddressDTO } from 'src/address/dtos/address';
 import { CreateAddressBody } from 'src/address/middleware/address';
@@ -12,23 +12,29 @@ import { AddressService } from 'src/address/service/address.service';
 export class AuthService {
 	constructor(
 		private prisma: PrismaService,
-		private addressService: AddressService
-	) { }
+		private addressService: AddressService,
+	) {}
 
-	async createCompleteUser(user: CreateUserBody, address: CreateAddressBody): Promise<CompleteUserDTO> {
-
+	async createCompleteUser(
+		user: CreateUserBody,
+		address: CreateAddressBody,
+	): Promise<CompleteUserDTO> {
 		var createdUser: UserDTO = {} as UserDTO;
 		var createdAddress: AddressDTO = {} as AddressDTO;
 
-		this.prisma.$transaction(async () => {
-			createdUser = await this.createUser(user);
+		await this.prisma.$transaction(async () => {
 			createdAddress = await this.addressService.createAddress(address);
-		})
+
+			user.addressId = createdAddress.id;
+			createdUser = await this.createUser(user);
+		});
 
 		const createdCompleteUser: CompleteUserDTO = {
 			user: createdUser,
-			address: createdAddress
-		}
+			address: createdAddress,
+		};
+
+		console.log('complete', createdCompleteUser.user)
 
 		return createdCompleteUser;
 	}
@@ -40,7 +46,8 @@ export class AuthService {
 				name: user.name,
 				email: user.email,
 				role: user.role,
-				addressId: user.addressId
+				addressId: user.addressId,
+				authorized: false
 			},
 			select: {
 				id: true,
@@ -48,11 +55,70 @@ export class AuthService {
 				name: true,
 				email: true,
 				role: true,
+				authorized: true,
 				addressId: true,
 			},
 		});
 
 		return createdUser;
+	}
+
+	async getUser(query: string): Promise<CompleteUserDTO[]> {
+
+		var completeUserList: CompleteUserDTO[] = [{} as CompleteUserDTO];
+		
+		await this.prisma.$transaction(async () => {
+			const userList: UserDTO[] = await this.prisma.user.findMany({
+				select: {
+					id: true,
+					createdAt: true,
+					name: true,
+					email: true,
+					role: true,
+					authorized: true,
+					addressId: true,
+				},
+				where: {
+					OR: [
+						{
+							id: { 
+								contains: query,
+								mode: 'insensitive'
+							},
+						},
+						{
+							email: { 
+								contains: query,
+								mode: 'insensitive'
+							},
+						},
+						{
+							name: { 
+								contains: query,
+								mode: 'insensitive'
+							},
+						},
+						{
+							name: { 
+								contains: query,
+								mode: 'insensitive'
+							},
+						},
+					]
+				}
+			})
+
+			userList.forEach(async (user: UserDTO) => {
+				const userAddress: AddressDTO = await this.addressService.getAddress(user.addressId);
+
+				completeUserList.push({
+					user: user,
+					address: userAddress
+				})
+			})
+		});
+		
+		return completeUserList;
 	}
 
 	async updateUser(id: string, user: CreateUserBody): Promise<UserDTO> {
@@ -61,73 +127,14 @@ export class AuthService {
 				name: user.name,
 				email: user.email,
 				role: user.role,
-				addressId: user.addressId
+				addressId: user.addressId,
 			},
 			where: {
-				id: id
-			}
-		})
+				id: id,
+			},
+		});
 
 		return updatedUser;
 	}
 
-	async createCountry(country: any) {
-		const createdCountry = await this.prisma.country.create({
-			data: {
-				id: country.id,
-				name: country.name,
-				flag: country.flag
-			},
-			select: {
-				id: true
-			}
-		})
-
-		return createdCountry;
-	}
-
-	async getCountry(name: string) {
-		const country = await this.prisma.country.findFirst({
-			select: {
-				id: true,
-			},
-			where: {
-				name: {
-					equals: name
-				}
-			}
-		})
-
-		return country;
-	}
-
-	async createState(state: any) {
-		const createdState = await this.prisma.province.create({
-			data: {
-				id: state.id,
-				name: state.name,
-				countryId: state.countryId
-			},
-			select: {
-				id: true
-			}
-		})
-
-		return createdState;
-	}
-
-	async createCity(city: any) {
-		const createdCity = await this.prisma.city.create({
-			data: {
-				id: city.id,
-				name: city.name,
-				provinceId: city.provinceId
-			},
-			select: {
-				id: true
-			}
-		})
-
-		return createdCity
-	}
 }
