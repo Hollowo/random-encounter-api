@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { Address } from "@prisma/client";
 import { CreateAddressBody } from "../middleware/address";
 import { randomUUID } from "crypto";
-import { AddressDTO } from "../dtos/address";
+import { AddressDTO, CityDTO, CountryDTO, ProvinceDTO } from "../dtos/address";
 
 @Injectable()
 export class AddressService {
@@ -180,5 +180,90 @@ export class AddressService {
         })
 
         return updatedAddress;
+    }
+
+    async getCities(name: string, provName: string): Promise<CityDTO[]> {
+        const cityList = await this.prisma.city.findMany({
+            select: {
+                id: true,
+                name: true,
+                province: {
+                    select: {
+                        id: true,
+                        name: true,
+                        country: {
+                            select:  {
+                                id: true,
+                                name: true,
+                                flag: true
+                            }
+                        }
+                    }
+                }
+            },
+            where: {
+                name: {
+                    contains: name,
+                    mode: 'insensitive'
+                },
+                province: {
+                    name: {
+                        contains: provName,
+                        mode: 'insensitive'
+                    }
+                }
+            }
+        })
+        
+        return cityList;
+    }
+
+    async getProvincies(name: string, countryName: string): Promise<ProvinceDTO[]> {
+        const provinceList = await this.prisma.province.findMany({
+            select: {
+                id: true,
+                name: true,
+                country: {
+                    select:  {
+                        id: true,
+                        name: true,
+                        flag: true
+                    }
+                }
+            },
+            where: {
+                name: {
+                    contains: name,
+                    mode: 'insensitive'
+                },
+                country: {
+                    name: {
+                        contains: countryName,
+                        mode: 'insensitive'
+                    }
+                }
+            }
+        })
+        
+        return provinceList;
+    }
+
+    async getCountries(name: string): Promise<CountryDTO[]> {
+        const cityList = await this.prisma.country.findMany({
+            select: {
+                id: true,
+                name: true,
+                flag: true
+            },
+            where: {
+                name: {
+                    contains: name,
+                    mode: 'insensitive'
+                },
+                
+            }
+        })
+        
+        return cityList;
     }
 }

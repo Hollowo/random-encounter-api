@@ -1,10 +1,7 @@
 import { IsNotEmpty } from "class-validator";
 
 export class CreateAddressBody {
-
-    @IsNotEmpty()
-    id: string;
-
+    
     @IsNotEmpty()
     description: string;
 

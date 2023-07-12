@@ -1,7 +1,3 @@
-import { CityDTO } from "./city";
-import { CountryDTO } from "./country";
-import { ProvinceDTO } from "./province";
-
 interface AddressDTO {
     id: string;
     createdAt: Date;
@@ -11,6 +7,27 @@ interface AddressDTO {
     country: CountryDTO;
 }
 
+interface CountryDTO {
+    id: string;
+    name: string;
+    flag: string;
+}
+
+interface ProvinceDTO {
+    id: string;
+    name: string;
+    country: CountryDTO;
+}
+
+interface CityDTO {
+    id: string;
+    name: string;
+    province: ProvinceDTO;
+}
+
 export {
-    AddressDTO
+    AddressDTO,
+    CountryDTO,
+    ProvinceDTO,
+    CityDTO
 }
