@@ -1,11 +1,21 @@
-import { Role } from '@prisma/client';
-import { IsNotEmpty, Length } from 'class-validator';
+import { Role } from "@prisma/client";
+import { AddressDTO } from "src/address/dtos/address";
 
-export class CreateUserBody {
-	@IsNotEmpty()
-	@Length(3, 100)
-	name: string;
+interface UserDTO {
+    id: string;
+    createdAt: Date;
+    name: string;
+    email: string;
+    role: string;
+    addressId: string;
+}
 
-	@IsNotEmpty()
-	role: Role;
+interface CompleteUserDTO {
+    user: UserDTO;
+    address: AddressDTO;
+}
+
+export {
+    UserDTO,
+    CompleteUserDTO,
 }

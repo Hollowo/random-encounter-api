@@ -15,11 +15,65 @@ enum Role {
   AMDIN
 }
 
+model Address {
+  id          String   @id @map("ID")
+  createdAt   DateTime @default(now()) @map("CREATED_AT")
+  description String   @map("DESCRIPTION")
+  cityId      String   @map("CITY_ID")
+  provinceId  String   @map("PROVINCE_ID")
+  countryId   String   @map("COUNTRY_ID")
+  city        City     @relation(fields: [cityId], references: [id])
+  province    Province @relation(fields: [provinceId], references: [id])
+  country     Country  @relation(fields: [countryId], references: [id])
+
+  user User[]
+
+  @@map("ADDRESS")
+}
+
+model Country {
+  id   String @id @map("ID")
+  name String @map("NAME")
+  flag String @map("FLAG")
+
+  Address  Address[]
+  Province Province[]
+
+  @@map("COUNTRY")
+}
+
+model Province {
+  id        String  @id @map("ID")
+  name      String  @map("NAME")
+  countryId String  @map("COUNTRY_ID")
+  country   Country @relation(fields: [countryId], references: [id])
+
+  Address Address[]
+  City    City[]
+
+  @@map("PROVINCE")
+}
+
+model City {
+  id         String   @id @map("ID")
+  name       String   @map("NAME")
+  provinceId String   @map("PROVINCE_ID")
+  province   Province @relation(fields: [provinceId], references: [id])
+
+  Address Address[]
+
+  @@map("CITY")
+}
+
 model User {
-  id        Int      @id @default(autoincrement()) @map("ID")
+  id        String   @id @map("ID")
   createdAt DateTime @default(now()) @map("CREATED_AT")
   name      String   @map("NAME")
-  role      Role     @map("ROLE")
+  email     String   @map("EMAIL")
+  addressId String   @map("ADDRESS_ID")
+  address   Address  @relation(fields: [addressId], references: [id])
+
+  role Role @map("ROLE")
 
   @@map("USER")
 }
