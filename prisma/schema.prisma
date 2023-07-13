@@ -54,14 +54,16 @@ model City {
 }
 
 model User {
-  id         String   @id @map("id")
-  createdAt  DateTime @default(now()) @map("created_at")
-  name       String   @map("name")
-  email      String   @map("email")
-  role       Role     @map("role")
-  authorized Boolean  @map("authorized")
-  addressId  String   @map("address_id")
-  address    Address  @relation(fields: [addressId], references: [id])
+  id           String   @id @map("id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  name         String   @map("name")
+  email        String   @map("email")
+  role         Role     @map("role")
+  authorized   Boolean  @map("authorized")
+  addressId    String   @map("address_id")
+  password     String   @map("password")
+  access_token String   @map("access_token")
+  address      Address  @relation(fields: [addressId], references: [id])
 
   @@map("user")
 }

@@ -26,7 +26,7 @@ export class AddressController {
 
         return updatedAddress;
     }
-    
+
 
     @Get(['city/:name', 'city/province/:provName', 'city/:name/:provName'])
     async getCities(@Param() params: any): Promise<CityDTO[]> {
@@ -38,7 +38,7 @@ export class AddressController {
         return cityList;
     }
 
-    @Get(['province/:name', 'province/country/:countryName', 'province/:name/:countryName',  'province'])
+    @Get(['province/:name', 'province/country/:countryName', 'province/:name/:countryName', 'province'])
     async getProvincies(@Param() params: any): Promise<ProvinceDTO[]> {
 
         const { name, countryName } = params;

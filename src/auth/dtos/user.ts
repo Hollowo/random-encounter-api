@@ -5,6 +5,7 @@ interface UserDTO {
 	createdAt: Date;
 	name: string;
 	email: string;
+	password: string;
 	role: string;
 	authorized: boolean;
 	addressId: string;
@@ -15,4 +16,7 @@ interface CompleteUserDTO {
 	address: AddressDTO;
 }
 
-export { UserDTO, CompleteUserDTO };
+export {
+	UserDTO,
+	CompleteUserDTO
+};
