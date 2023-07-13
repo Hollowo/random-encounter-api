@@ -1,25 +1,26 @@
-import { Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/database/prisma.service';
-import { CreateCompleteUserBody, CreateUserBody, UpdateUserBody } from '../middlewares/user';
+import { CreateUserBody, UpdateUserBody } from '../middlewares/user';
 import { randomUUID } from 'node:crypto';
 import { CompleteUserDTO, UserDTO } from '../dtos/user';
 import { AddressDTO } from 'src/address/dtos/address';
 import { CreateAddressBody } from 'src/address/middleware/address';
 import { AddressService } from 'src/address/service/address.service';
 import { AuthDataDTO } from '../dtos/authentication';
+import { ClientProxy } from '@nestjs/microservices';
+import { Observable, map } from 'rxjs';
+import { ObservableUtil } from 'src/util/observableUtil';
 
 @Injectable()
 export class AuthService {
 	constructor(
+		@Inject('AUTH_MICROSERVICE')  private readonly client: ClientProxy,
 		private prisma: PrismaService,
 		private addressService: AddressService,
+		private observer: ObservableUtil
 	) { }
 
-	async createCompleteUser(
-		user: CreateUserBody,
-		address: CreateAddressBody,
-	): Promise<CompleteUserDTO> {
+	async createCompleteUser(user: CreateUserBody,address: CreateAddressBody,): Promise<CompleteUserDTO> {
 		var createdUser: UserDTO = {} as UserDTO;
 		var createdAddress: AddressDTO = {} as AddressDTO;
 
@@ -35,7 +36,7 @@ export class AuthService {
 			address: createdAddress,
 		};
 
-		return createdCompleteUser;
+		return this.observer.observe({ cmd: 'create-complete-user' }, createdCompleteUser, this.client);
 	}
 
 	async createUser(user: CreateUserBody): Promise<UserDTO> {
@@ -175,7 +176,9 @@ export class AuthService {
 			data: {
 				name: user.name,
 				email: user.email,
+			    password: user.password,
 				role: user.role,
+
 			},
 			where: {
 				id: id,

@@ -1,10 +1,11 @@
-import { Body, Controller, Post, Patch, Get, Param, Res, UnauthorizedException, HttpException } from '@nestjs/common';
+import { Body, Controller, Post, Patch, Get, Param, Res } from '@nestjs/common';
 import { AuthService } from './service/auth.service';
 import { CreateCompleteUserBody, UpdateUserBody } from './middlewares/user';
 import { CompleteUserDTO, UserDTO } from './dtos/user';
 import { PrismaService } from 'src/database/prisma.service';
 import { CreateLoginBody } from './middlewares/authentication';
 import { AuthDataDTO } from './dtos/authentication';
+import { InvalidCredentialsException, UserNotFoundException } from 'src/middlewares/HttpException';
 
 @Controller('auth')
 export class AuthController {
@@ -17,6 +18,9 @@ export class AuthController {
 	async createCompleteUser(@Body() body: CreateCompleteUserBody): Promise<CompleteUserDTO> {
 
 		const { user, address } = body;
+
+		console.log('USER', user)
+
 		const createdCompleteUser: CompleteUserDTO = await this.authService.createCompleteUser(user, address);
 
 		return createdCompleteUser;
@@ -31,7 +35,7 @@ export class AuthController {
 		if (loginAttemptResponse) {
 			return loginAttemptResponse;
 		} else {
-			throw new HttpException('Invalid credentials or user not found with provided password', 404);
+			throw new InvalidCredentialsException;
 		}
 	}
 
@@ -52,10 +56,9 @@ export class AuthController {
 
 		var createdUser: UserDTO = {} as UserDTO;
 		if (userToUpdate) {
-			console.log(userToUpdate)
 			createdUser = await this.authService.updateUser(id, body);
 		} else {
-			throw new HttpException('User not found', 404)
+			throw new UserNotFoundException
 		}
 
 		return createdUser;
