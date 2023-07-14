@@ -1,9 +1,9 @@
 import { PrismaService } from "src/database/prisma.service";
 import { Injectable } from '@nestjs/common';
 import { Address } from "@prisma/client";
-import { CreateAddressBody } from "../middleware/address";
+import { CreateAddressBody } from "../middleware/address.body";
 import { randomUUID } from "crypto";
-import { AddressDTO, CityDTO, CountryDTO, ProvinceDTO } from "../dtos/address";
+import { AddressDTO, CityDTO, CountryDTO, ProvinceDTO } from "../dtos/address.dto";
 
 @Injectable()
 export class AddressService {
@@ -192,7 +192,7 @@ export class AddressService {
                         id: true,
                         name: true,
                         country: {
-                            select:  {
+                            select: {
                                 id: true,
                                 name: true,
                                 flag: true
@@ -214,7 +214,7 @@ export class AddressService {
                 }
             }
         })
-        
+
         return cityList;
     }
 
@@ -224,7 +224,7 @@ export class AddressService {
                 id: true,
                 name: true,
                 country: {
-                    select:  {
+                    select: {
                         id: true,
                         name: true,
                         flag: true
@@ -244,7 +244,7 @@ export class AddressService {
                 }
             }
         })
-        
+
         return provinceList;
     }
 
@@ -260,10 +260,10 @@ export class AddressService {
                     contains: name,
                     mode: 'insensitive'
                 },
-                
+
             }
         })
-        
+
         return cityList;
     }
 }

@@ -1,7 +1,8 @@
 import { Role } from '@prisma/client';
 import { Type } from 'class-transformer';
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, isStrongPassword, Length, ValidateNested } from 'class-validator';
-import { CreateAddressBody } from 'src/address/middleware/address';
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, Length, Matches, ValidateNested } from 'class-validator';
+import { CreateAddressBody } from 'src/address/middleware/address.body';
+import { RegExHelper } from 'src/util/regex.helper';
 
 export class UpdateUserBody {
 
@@ -14,11 +15,15 @@ export class UpdateUserBody {
 	email: string;
 
 	@IsOptional()
+	@Matches(RegExHelper.password)
 	password: string;
 
 	@IsOptional()
 	@IsEnum(Role)
 	role: Role;
+
+	@IsOptional()
+	refreshToken: string;
 }
 
 export class CreateUserBody {
@@ -32,13 +37,18 @@ export class CreateUserBody {
 	email: string;
 
 	@IsNotEmpty()
+	@Matches(RegExHelper.password, {
+		message: 'password too weak'
+	})
 	password: string;
 
 	@IsNotEmpty()
 	@IsEnum(Role)
 	role: Role;
 
-	addressId: string
+	refreshToken: string;
+
+	addressId: string;
 }
 
 export class CreateCompleteUserBody {

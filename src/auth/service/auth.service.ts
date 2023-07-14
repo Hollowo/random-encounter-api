@@ -1,26 +1,21 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/database/prisma.service';
-import { CreateUserBody, UpdateUserBody } from '../middlewares/user';
+import { CreateUserBody, UpdateUserBody } from '../middlewares/user.body';
 import { randomUUID } from 'node:crypto';
-import { CompleteUserDTO, UserDTO } from '../dtos/user';
-import { AddressDTO } from 'src/address/dtos/address';
-import { CreateAddressBody } from 'src/address/middleware/address';
+import { CompleteUserDTO, UserDTO } from '../dtos/user.dto';
+import { AddressDTO } from 'src/address/dtos/address.dto';
+import { CreateAddressBody } from 'src/address/middleware/address.body';
 import { AddressService } from 'src/address/service/address.service';
-import { AuthDataDTO } from '../dtos/authentication';
-import { ClientProxy } from '@nestjs/microservices';
-import { Observable, map } from 'rxjs';
-import { ObservableUtil } from 'src/util/observableUtil';
+import { AuthDataDTO } from '../dtos/authentication.dto';
 
 @Injectable()
 export class AuthService {
 	constructor(
-		@Inject('AUTH_MICROSERVICE')  private readonly client: ClientProxy,
 		private prisma: PrismaService,
-		private addressService: AddressService,
-		private observer: ObservableUtil
+		private addressService: AddressService
 	) { }
 
-	async createCompleteUser(user: CreateUserBody,address: CreateAddressBody,): Promise<CompleteUserDTO> {
+	async createCompleteUser(user: CreateUserBody, address: CreateAddressBody,): Promise<CompleteUserDTO> {
 		var createdUser: UserDTO = {} as UserDTO;
 		var createdAddress: AddressDTO = {} as AddressDTO;
 
@@ -36,7 +31,7 @@ export class AuthService {
 			address: createdAddress,
 		};
 
-		return this.observer.observe({ cmd: 'create-complete-user' }, createdCompleteUser, this.client);
+		return createdCompleteUser;
 	}
 
 	async createUser(user: CreateUserBody): Promise<UserDTO> {
@@ -49,7 +44,7 @@ export class AuthService {
 				role: user.role,
 				addressId: user.addressId,
 				authorized: false,
-				access_token: ''
+				refreshToken: ''
 			},
 			select: {
 				id: true,
@@ -66,18 +61,41 @@ export class AuthService {
 		return createdUser;
 	}
 
-	async makeLogin(email, password): Promise<AuthDataDTO> {
-		const loginResponse: AuthDataDTO = await this.prisma.user.findFirst({
-			select: {
-				id: true,
-				authorized: true,
-				access_token: true,
-			},
-			where: {
-				email: email,
-				password: password
-			}
-		})
+	async checkRefreshToken(email: string, refreshToken: string): Promise<{ refreshToken: string }> {
+		try {
+			var refreshTokenResponse: { refreshToken: string } = await this.prisma.user.findFirstOrThrow({
+				select: {
+					refreshToken: true
+				},
+				where: {
+					email: email,
+					refreshToken: refreshToken
+				}
+			})
+		} catch (ex) {
+			console.log('deu bo')
+			return undefined;
+		}
+
+		return refreshTokenResponse;
+	}
+
+	async makeLogin(email: string): Promise<AuthDataDTO> {
+		try {
+			var loginResponse: AuthDataDTO = await this.prisma.user.findFirstOrThrow({
+				select: {
+					id: true,
+					password: true,
+					email: true,
+					authorized: true,
+				},
+				where: {
+					email: email
+				}
+			})
+		} catch (ex) {
+			return undefined;
+		}
 
 		return loginResponse;
 	}
@@ -132,28 +150,30 @@ export class AuthService {
 					authorized: true,
 					addressId: true,
 				},
-				where: {
-					OR: [
-						{
-							id: {
-								contains: query,
-								mode: 'insensitive'
+				where: query
+					? {
+						OR: [
+							{
+								id: {
+									contains: query,
+									mode: 'insensitive'
+								},
 							},
-						},
-						{
-							email: {
-								contains: query,
-								mode: 'insensitive'
+							{
+								email: {
+									contains: query,
+									mode: 'insensitive'
+								},
 							},
-						},
-						{
-							name: {
-								contains: query,
-								mode: 'insensitive'
+							{
+								name: {
+									contains: query,
+									mode: 'insensitive'
+								},
 							},
-						},
-					]
-				}
+						]
+					}
+					: {}
 			})
 
 			await Promise.all(
@@ -176,9 +196,9 @@ export class AuthService {
 			data: {
 				name: user.name,
 				email: user.email,
-			    password: user.password,
+				password: user.password,
 				role: user.role,
-
+				refreshToken: user.refreshToken
 			},
 			where: {
 				id: id,

@@ -4,15 +4,29 @@ class UserNotFoundException extends HttpException {
     constructor() {
         super('User not found', 404);
     }
-} 
+}
 
 class InvalidCredentialsException extends HttpException {
     constructor() {
-        super('Invalid credentials or user not found with provided password', 404)
+        super('Invalid credentials', 401)
     }
 }
 
-export { 
+class InvalidRefreshToken extends HttpException {
+    constructor() {
+        super('Invalid refresh token', 401)
+    }
+}
+
+class UserAlreadyExist extends HttpException {
+    constructor() {
+        super('Email already in use', 409)
+    }
+}
+
+export {
     UserNotFoundException,
-    InvalidCredentialsException
+    InvalidCredentialsException,
+    InvalidRefreshToken,
+    UserAlreadyExist
 };

@@ -1,17 +1,19 @@
-import { Body, Controller, Post, Patch, Get, Param, Res } from '@nestjs/common';
+import { Body, Controller, Post, Patch, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './service/auth.service';
-import { CreateCompleteUserBody, UpdateUserBody } from './middlewares/user';
-import { CompleteUserDTO, UserDTO } from './dtos/user';
-import { PrismaService } from 'src/database/prisma.service';
-import { CreateLoginBody } from './middlewares/authentication';
-import { AuthDataDTO } from './dtos/authentication';
-import { InvalidCredentialsException, UserNotFoundException } from 'src/middlewares/HttpException';
+import { CreateCompleteUserBody, UpdateUserBody } from './middlewares/user.body';
+import { CompleteUserDTO, UserDTO } from './dtos/user.dto';
+import { CreateLoginBody } from './middlewares/authentication.body';
+import { TokenDTO } from './dtos/authentication.dto';
+import { UserAlreadyExist, UserNotFoundException } from 'src/middlewares/HttpException';
+import { EncoderHelper } from 'src/util/encoder.helper';
+import { AuthGuard } from '@nestjs/passport';
+import { LoginHandler } from 'src/util/login.handler';
 
 @Controller('auth')
 export class AuthController {
 	constructor(
 		private authService: AuthService,
-		private prisma: PrismaService
+		private loginHandler: LoginHandler
 	) { }
 
 	@Post('user')
@@ -19,39 +21,50 @@ export class AuthController {
 
 		const { user, address } = body;
 
-		console.log('USER', user)
+		const existentUser: CompleteUserDTO[] = await this.authService.getUser(user.email);
 
-		const createdCompleteUser: CompleteUserDTO = await this.authService.createCompleteUser(user, address);
+		if (!existentUser.length) {
 
-		return createdCompleteUser;
-	}
+			user.password = await EncoderHelper.encode(user.password, 12)
 
-	@Post('login')
-	async makeLogin(@Res() res: any, @Body() body: CreateLoginBody): Promise<AuthDataDTO> {
+			const createdCompleteUser: CompleteUserDTO = await this.authService.createCompleteUser(user, address);
 
-		const { email, password } = body;
-		const loginAttemptResponse: AuthDataDTO = await this.authService.makeLogin(email, password);
+			return createdCompleteUser;
 
-		if (loginAttemptResponse) {
-			return loginAttemptResponse;
 		} else {
-			throw new InvalidCredentialsException;
+			throw new UserAlreadyExist;
 		}
 	}
 
-	@Get('user/:query')
-	async getUser(@Param() params: any): Promise<CompleteUserDTO[]> {
+	@UseGuards(AuthGuard('local'))
+	@Post('login')
+	async makeLogin(@Req() req, @Body() body: CreateLoginBody): Promise<TokenDTO> {
+		if (req.user) {
+			const tokenPayload: TokenDTO = await this.loginHandler.generateJwtToken(req.user)
 
+			const { refreshToken } = tokenPayload;
+
+			await this.authService.updateUser(req.user.id, { refreshToken } as UpdateUserBody)
+
+			return tokenPayload;
+		}
+	}
+
+	@UseGuards(AuthGuard('local'))
+	@Get(['user/:query', 'user'])
+	async getUser(@Param() params: any): Promise<CompleteUserDTO[]> {
+		console.log('aaa')
 		const query = params.query;
 		const completeUser: CompleteUserDTO[] = await this.authService.getUser(query);
 
 		return completeUser;
 	}
 
+	@UseGuards(AuthGuard('local'))
 	@Patch('user/:id')
 	async updateUser(@Body() body: UpdateUserBody, @Param() params: any): Promise<UserDTO> {
 
-		const id = params.id;
+		const { id } = params;
 		const userToUpdate: CompleteUserDTO = await this.authService.getUserById(id);
 
 		var createdUser: UserDTO = {} as UserDTO;

@@ -1,4 +1,4 @@
-import { AddressDTO } from 'src/address/dtos/address';
+import { AddressDTO } from 'src/address/dtos/address.dto';
 
 interface UserDTO {
 	id: string;

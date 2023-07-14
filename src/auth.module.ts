@@ -7,37 +7,26 @@ import { AddressService } from './address/service/address.service';
 import { AdminController } from './admin/admin.controller';
 import { AdminService } from './admin/admin.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { AUTH_PORT } from './constants/PORTS';
-import { ObservableUtil } from './util/observableUtil';
-import * as net from 'net';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+import { LocalStrategy } from './auth/strategies/local.strategy';
+import { LoginHandler } from './util/login.handler';
 
 @Module({
 	imports: [
 		ConfigModule.forRoot(),
-		ClientsModule.register([{
-			name:  'AUTH_MICROSERVICE', 
-			options: { 
-				transport: Transport.TCP,
-				port: 3001
-			} 
-		}])
+		PassportModule,
+		JwtModule.register({
+			privateKey: process.env.SECRET_KEY,
+			signOptions: { expiresIn: '60s' }
+		})
 	],
 	controllers: [AuthController, AddressController, AdminController],
-	providers: [PrismaService, AuthService, AddressService, AdminService, ObservableUtil,
-	{
-		provide: 'TcpServerService',
-		useFactory: () => {
-			const server = net.createServer(socket => {
-				socket.write('TCP PROVIDER\n');
-				socket.pipe(socket);
-			});
-			server.listen()
-
-			return server;
-		}
-	}],
+	providers: [
+		PrismaService, AuthService, AddressService, AdminService,
+		LocalStrategy,
+		LoginHandler],
 })
-export class AuthModule { 
-	constructor(private configService: ConfigService){}
+export class AuthModule {
+	constructor(private configService: ConfigService) { }
 }

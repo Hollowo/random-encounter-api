@@ -62,7 +62,7 @@ model User {
   authorized   Boolean  @map("authorized")
   addressId    String   @map("address_id")
   password     String   @map("password")
-  access_token String   @map("access_token")
+  refreshToken String   @map("refresh_token")
   address      Address  @relation(fields: [addressId], references: [id])
 
   @@map("user")
