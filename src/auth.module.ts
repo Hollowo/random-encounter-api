@@ -11,6 +11,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { LocalStrategy } from './auth/strategies/local.strategy';
 import { LoginHandler } from './util/login.handler';
+import { RefreshStrategy } from './auth/strategies/refresh.strategy';
 
 @Module({
 	imports: [
@@ -24,7 +25,7 @@ import { LoginHandler } from './util/login.handler';
 	controllers: [AuthController, AddressController, AdminController],
 	providers: [
 		PrismaService, AuthService, AddressService, AdminService,
-		LocalStrategy,
+		LocalStrategy, RefreshStrategy,
 		LoginHandler],
 })
 export class AuthModule {

@@ -5,42 +5,24 @@ import { InvalidCredentialsException, InvalidRefreshToken, UserNotFoundException
 import { AuthDataDTO } from "../dtos/authentication.dto";
 import { AuthService } from "../service/auth.service";
 import { compareSync } from 'bcrypt';
-import jwtDecode from "jwt-decode";
 
 @Injectable()
-export class LocalStrategy extends PassportStrategy(Strategy) {
+export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
     constructor(
         private authService: AuthService,
     ) {
         super({
-            usernameField: 'email',
-            passReqToCallback: true
+            usernameField: 'email'
         })
     }
 
-    async validate(@Req() req: any, email: string, password: string): Promise<AuthDataDTO> {
-
-        console.log(req.url)
-        if (req.url !== '/auth/login' && req.url !== '/auth/login/') {
-            console.log('entrou?')
-            const refreshToken = req.headers.refresh_token;
-
-            if (!refreshToken) throw new InvalidRefreshToken;
-
-            const decodedRefreshToken: any = jwtDecode(refreshToken);
-
-            const { refreshTokenEmail } = decodedRefreshToken;
-
-            const refreshTokenResponse = (await this.authService.checkRefreshToken(refreshTokenEmail, refreshToken)).refreshToken
-
-            const isRefreshTokenValid: boolean = refreshTokenResponse == undefined || refreshToken === refreshTokenResponse;
-            if (!isRefreshTokenValid || refreshTokenEmail !== email) throw new InvalidRefreshToken;
-        }
-
+    async validate(email: string, password: string): Promise<AuthDataDTO> {
+        console.log('\'-\'')
         const userAuthData: AuthDataDTO = await this.authService.makeLogin(email);
 
         if (userAuthData) {
             const isPasswordValid: boolean = await compareSync(password, userAuthData.password);
+            console.log(isPasswordValid)
             if (!isPasswordValid) throw new InvalidCredentialsException;
         } else {
             throw new UserNotFoundException;

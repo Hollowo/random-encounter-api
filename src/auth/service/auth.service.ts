@@ -82,7 +82,7 @@ export class AuthService {
 
 	async makeLogin(email: string): Promise<AuthDataDTO> {
 		try {
-			var loginResponse: AuthDataDTO = await this.prisma.user.findFirstOrThrow({
+			var loginResponse: AuthDataDTO = await this.prisma.user.findFirst({
 				select: {
 					id: true,
 					password: true,

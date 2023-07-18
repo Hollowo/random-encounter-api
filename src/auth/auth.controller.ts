@@ -43,14 +43,13 @@ export class AuthController {
 			const tokenPayload: TokenDTO = await this.loginHandler.generateJwtToken(req.user)
 
 			const { refreshToken } = tokenPayload;
-
 			await this.authService.updateUser(req.user.id, { refreshToken } as UpdateUserBody)
 
 			return tokenPayload;
 		}
 	}
 
-	@UseGuards(AuthGuard('local'))
+	@UseGuards(AuthGuard('refresh'))
 	@Get(['user/:query', 'user'])
 	async getUser(@Param() params: any): Promise<CompleteUserDTO[]> {
 		console.log('aaa')
@@ -60,7 +59,7 @@ export class AuthController {
 		return completeUser;
 	}
 
-	@UseGuards(AuthGuard('local'))
+	@UseGuards(AuthGuard('refresh'))
 	@Patch('user/:id')
 	async updateUser(@Body() body: UpdateUserBody, @Param() params: any): Promise<UserDTO> {
 
@@ -69,6 +68,10 @@ export class AuthController {
 
 		var createdUser: UserDTO = {} as UserDTO;
 		if (userToUpdate) {
+
+			if (body.password)
+				body.password = await EncoderHelper.encode(body.password, 12)
+
 			createdUser = await this.authService.updateUser(id, body);
 		} else {
 			throw new UserNotFoundException
