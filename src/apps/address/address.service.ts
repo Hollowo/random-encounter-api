@@ -1,9 +1,9 @@
 import { PrismaService } from "src/database/prisma.service";
 import { Injectable } from '@nestjs/common';
 import { Address } from "@prisma/client";
-import { CreateAddressBody } from "../middleware/address.body";
+import { CreateAddressBody } from "./middleware/address.body";
 import { randomUUID } from "crypto";
-import { AddressDTO, CityDTO, CountryDTO, ProvinceDTO } from "../dtos/address.dto";
+import { AddressDTO, CityDTO, CountryDTO, ProvinceDTO } from "./dtos/address.dto";
 
 @Injectable()
 export class AddressService {

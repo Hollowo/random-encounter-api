@@ -3,8 +3,10 @@ import { randomUUID } from 'node:crypto';
 import { PrismaService } from 'src/database/prisma.service';
 import { brazilCities, citiesJson, countriesJson, statesJson } from './countries';
 import { AdminService } from './admin.service';
+import { ApiExcludeController } from '@nestjs/swagger';
 
 @Controller('admin')
+@ApiExcludeController()
 export class AdminController {
 	constructor(
 		private adminService: AdminService,
@@ -149,5 +151,15 @@ export class AdminController {
 			})
 		})
 		return citiesControl;
+	}
+
+	@Post('system')
+	async createSystem(@Body() body: any) {
+		await this.prisma.system.create({
+			data: {
+				id: randomUUID(),
+				name: body.name
+			}
+		})
 	}
 }

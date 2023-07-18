@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/database/prisma.service';
-import { CreateUserBody, UpdateUserBody } from '../middlewares/user.body';
+import { CreateUserBody, UpdateUserBody } from './middlewares/user.body';
 import { randomUUID } from 'node:crypto';
-import { CompleteUserDTO, UserDTO } from '../dtos/user.dto';
-import { AddressDTO } from 'src/address/dtos/address.dto';
-import { CreateAddressBody } from 'src/address/middleware/address.body';
-import { AddressService } from 'src/address/service/address.service';
-import { AuthDataDTO } from '../dtos/authentication.dto';
+import { CompleteUserDTO, UserDTO } from './dtos/user.dto';
+import { AddressDTO } from 'src/apps/address/dtos/address.dto';
+import { CreateAddressBody } from 'src/apps/address/middleware/address.body';
+import { AuthDataDTO } from './dtos/authentication.dto';
+import { AddressService } from '../address/address.service';
 
 @Injectable()
 export class AuthService {
@@ -73,7 +73,6 @@ export class AuthService {
 				}
 			})
 		} catch (ex) {
-			console.log('deu bo')
 			return undefined;
 		}
 

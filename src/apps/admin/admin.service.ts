@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from 'src/database/prisma.service';
 import { randomUUID } from 'node:crypto';
-import { AddressDTO } from 'src/address/dtos/address.dto';
-import { CreateAddressBody } from 'src/address/middleware/address.body';
-import { AddressService } from 'src/address/service/address.service';
+import { AddressDTO } from 'src/apps/address/dtos/address.dto';
+import { CreateAddressBody } from 'src/apps/address/middleware/address.body';
+import { AddressService } from '../address/address.service';
 
 @Injectable()
 export class AdminService {

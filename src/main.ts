@@ -1,13 +1,13 @@
 import { NestFactory } from '@nestjs/core';
-import { Logger, ValidationPipe } from '@nestjs/common';
-import { AuthModule } from './auth.module';
+import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
+import { AppModule } from './app.module';
 import { AUTH_PORT } from './constants/PORTS';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 const logger = new Logger('Server');
 
 async function bootstrap() {
-	const app = await NestFactory.create(AuthModule);
+	const app: INestApplication = await NestFactory.create(AppModule);
 
 	const config = new DocumentBuilder()
 		.setTitle('Random Encounter API')
@@ -15,7 +15,11 @@ async function bootstrap() {
 		.build();
 
 	const document = SwaggerModule.createDocument(app, config);
-	SwaggerModule.setup('api/doc', app, document);
+	SwaggerModule.setup('api', app, document, {
+		swaggerOptions: {
+			supportedSubmitMethods: []
+		}
+	});
 
 	app.useGlobalPipes(new ValidationPipe({
 		whitelist: true,

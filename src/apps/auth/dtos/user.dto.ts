@@ -1,11 +1,11 @@
-import { AddressDTO } from 'src/address/dtos/address.dto';
+import { AddressDTO } from 'src/apps/address/dtos/address.dto';
 
 interface UserDTO {
 	id: string;
 	createdAt: Date;
 	name: string;
 	email: string;
-	password: string;
+	password?: string;
 	role: string;
 	authorized: boolean;
 	addressId: string;

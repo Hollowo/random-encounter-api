@@ -1,5 +1,5 @@
-import { Body, Controller, Post, Patch, Get, Param, Req, UseGuards } from '@nestjs/common';
-import { AuthService } from './service/auth.service';
+import { Body, Controller, Post, Patch, Get, Param, Req, UseGuards, Query } from '@nestjs/common';
+import { AuthService } from './auth.service';
 import { CreateCompleteUserBody, UpdateUserBody } from './middlewares/user.body';
 import { CompleteUserDTO, UserDTO } from './dtos/user.dto';
 import { CreateLoginBody } from './middlewares/authentication.body';
@@ -8,8 +8,10 @@ import { UserAlreadyExist, UserNotFoundException } from 'src/middlewares/HttpExc
 import { EncoderHelper } from 'src/util/encoder.helper';
 import { AuthGuard } from '@nestjs/passport';
 import { LoginHandler } from 'src/util/login.handler';
+import { ApiPropertyOptional, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 @Controller('auth')
+@ApiTags('Authentication/User Management')
 export class AuthController {
 	constructor(
 		private authService: AuthService,
@@ -50,10 +52,9 @@ export class AuthController {
 	}
 
 	@UseGuards(AuthGuard('refresh'))
-	@Get(['user/:query', 'user'])
-	async getUser(@Param() params: any): Promise<CompleteUserDTO[]> {
-		console.log('aaa')
-		const query = params.query;
+	@ApiQuery({ required: false, name: 'query', description: 'User ID, Name or Email'})
+	@Get('user')
+	async getUser(query: string): Promise<CompleteUserDTO[]> {
 		const completeUser: CompleteUserDTO[] = await this.authService.getUser(query);
 
 		return completeUser;
