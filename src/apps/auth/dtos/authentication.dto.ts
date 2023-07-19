@@ -1,20 +1,36 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { Role } from "@prisma/client";
 
-interface AuthDataDTO {
+class AuthDataDTO {
+	@ApiProperty()
     id: string;
+
+	@ApiProperty()
     email: string;
+
+	@ApiProperty()
     password: string;
+
+	@ApiProperty()
     authorized: boolean;
 }
 
-interface PayloadDTO {
+class PayloadDTO {
+	@ApiProperty()
     sub: string;
+    
+	@ApiProperty()
     email: string;
+
+	@ApiProperty()
     authorized: boolean;
 }
 
-interface TokenDTO {
+class TokenDTO {
+	@ApiProperty()
     token: string;
+    
+	@ApiProperty()
     refreshToken: string;
 }
 

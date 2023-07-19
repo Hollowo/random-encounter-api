@@ -6,11 +6,12 @@ import { CreateAddressBody } from 'src/apps/address/middleware/address.body';
 import { AddressService } from '../address/address.service';
 import { CreateTableBody, CreateTableParticipantBody } from './middlewares/table.body';
 import { CompleteTableDTO, TableDTO, TableParticipantDTO } from './dtos/table.dto';
-import { CompleteUserDTO } from '../auth/dtos/user.dto';
+import { CompleteUserDTO, UserDTO } from '../auth/dtos/user.dto';
 import { AuthService } from '../auth/auth.service';
-import { TableParticipant } from '@prisma/client';
+import { TableParticipant, User } from '@prisma/client';
 import { SystemDTO } from './dtos/system.dto';
 import { TableInviteDTO } from './dtos/invite.dto';
+import { UserAlreadyInTheTable } from 'src/middlewares/HttpException';
 
 @Injectable()
 export class TableService {
@@ -34,8 +35,8 @@ export class TableService {
             await this.createTableParticipants([tableParticipants]);
 		});
 
-        const owner: CompleteUserDTO = await this.authService.getUserById(table.ownerId);
-        const ownerAsParticipant: CompleteUserDTO = await this.authService.getUserById(table.ownerId);
+        const owner: CompleteUserDTO = await this.authService.getCompleteUserById(table.ownerId);
+        const ownerAsParticipant: UserDTO = await this.authService.getUserById(table.ownerId);
 
 		const createdCompleteTable: CompleteTableDTO = {
 			table: createdTable,
@@ -75,17 +76,16 @@ export class TableService {
             await Promise.all(
                 tableParticipant.map( async participant => {
 
-                    const isInviteChecked: boolean = (await this.getTableInvite(participant.userId, participant.tableId)).checked
-
-                    const existentParticipant: boolean = await this.getta 
-
-                    const userAlreadyInTheTable: boolean = isInviteChecked;
-
+                    const tableId = participant.tableId;
+                    const userId = participant.userId;
+                    
+                    if (this.userExistsOnTable(userId, tableId))
+                        throw new UserAlreadyInTheTable;
 
                     const createdParticipant: TableParticipantDTO = await this.prisma.tableParticipant.create({
                         data: {
-                            tableId: participant.tableId,
-                            userId: participant.userId,
+                            tableId: tableId,
+                            userId: userId,
                         },
                         select: {
                             tableId: true,
@@ -103,9 +103,18 @@ export class TableService {
         return createdTableParticipants;
     }
 
+    async createParticipantInvite(userId: string, tableId: string, isJoinRequest: boolean) {
+        await this.prisma.tableInvite.create({
+            data: {
+                tableId: tableId,
+                userId: userId,
+                checked: false,
+                isJoinRequest: isJoinRequest
+            }
+        })
+    }
+
     async getTable(tableId: string): Promise<CompleteTableDTO> {
-        
-        const completeTable: CompleteTableDTO = undefined;
         
         const table: TableDTO = await this.prisma.table.findUnique({
             select: {
@@ -121,22 +130,36 @@ export class TableService {
             }
         })
 
-        const owner: CompleteUserDTO = await this.authService.getUserById(table.ownerId);
+        const owner: CompleteUserDTO = await this.authService.getCompleteUserById(table.ownerId);
+        const participants: UserDTO[] = await this.getTableParticipants(tableId);
 
-        // wip
-
+        const completeTable: CompleteTableDTO = {
+            table,
+            owner,
+            participants
+        } 
+        
         return completeTable;
     }
 
-    async createParticipantInvite(userId: string, tableId: string, isJoinRequest: boolean) {
-        await this.prisma.tableInvite.create({
-            data: {
-                tableId: tableId,
-                userId: userId,
-                checked: false,
-                isJoinRequest: isJoinRequest
+    async getTableParticipants(tableId: string): Promise<UserDTO[]> {
+        const participantList: UserDTO[] = await this.prisma.user.findMany({
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true 
+            },
+            where: {
+                TableParticipant: {
+                    some: {
+                        tableId: tableId
+                    }
+                }
             }
         })
+
+        return participantList;
     }
 
     async getSystem(name: string): Promise<SystemDTO[]> {
@@ -282,6 +305,16 @@ export class TableService {
                 }
             }
         })
+    }
+
+    async userExistsOnTable(userId: string, tableId: string): Promise<boolean> {
+        const isInviteChecked: boolean = (await this.getTableInvite(userId, tableId)).checked;
+                    
+        const participantList: UserDTO[] = await this.getTableParticipants(tableId);
+
+        const existentParticipant: boolean = participantList.filter(contester => contester.id === userId).length > 0;
+
+        return isInviteChecked && existentParticipant;
     }
 
 }

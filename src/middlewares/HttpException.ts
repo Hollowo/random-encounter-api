@@ -24,9 +24,16 @@ class UserAlreadyExist extends HttpException {
     }
 }
 
+class UserAlreadyInTheTable extends HttpException {
+    constructor() {
+        super('User already in the table', 409)
+    }
+}
+
 export {
     UserNotFoundException,
     InvalidCredentialsException,
     InvalidRefreshToken,
-    UserAlreadyExist
+    UserAlreadyExist,
+    UserAlreadyInTheTable
 };

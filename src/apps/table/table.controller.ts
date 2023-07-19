@@ -4,7 +4,7 @@ import { CompleteTableDTO, TableParticipantDTO } from './dtos/table.dto';
 import { TableService } from './table.service';
 import { AuthGuard } from '@nestjs/passport';
 import { SystemDTO } from './dtos/system.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TableInviteDTO } from './dtos/invite.dto';
 import { CreateTableInviteBody, UpdateTableInviteBody } from './middlewares/invite.body';
 import { CreateTableParticipantBody } from './middlewares/table.body';
@@ -17,6 +17,7 @@ export class TableController {
         private tableService: TableService
 	) {}
 
+	@ApiResponse({ status: 201, type: CompleteTableDTO })
 	@Post()
 	async createTable(@Body() body: CreateTableBody): Promise<CompleteTableDTO> {
 
@@ -25,6 +26,7 @@ export class TableController {
         return createdTable;
 	}
 
+	@ApiResponse({ status: 201, type: TableInviteDTO })
     @Post(['invite', 'join'])
     async inviteUser(@Req() req: any, @Res() res: any, @Body() body: CreateTableInviteBody ): Promise<TableInviteDTO> {
         try {
@@ -67,6 +69,7 @@ export class TableController {
         return res.status(201).json({ message: approved ? 'Player added to the table!' : 'Player not added to the table!' });
     }
 
+	@ApiResponse({ status: 200, type: TableInviteDTO, isArray: true })
     @Get('invites/:userId')
     async getUserInvites(@Param('userId') userId: string): Promise<TableInviteDTO[]> {
 
@@ -75,6 +78,7 @@ export class TableController {
         return userTableInvites;
     }
 
+	@ApiResponse({ status: 200, type: TableInviteDTO, isArray: true })
     @Get('joins/:tableId')
     async getTableJoinRequest(@Param('tableId') tableId: string): Promise<TableInviteDTO[]> {
 
@@ -83,6 +87,7 @@ export class TableController {
         return joinRequestList;
     }
 
+	@ApiResponse({ status: 200, type: SystemDTO, isArray: true })
     @Get('system')
     async getSystem(@Query('name') name: string): Promise<SystemDTO[]> {
 

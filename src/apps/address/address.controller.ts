@@ -1,16 +1,19 @@
-import { Body, Controller, Get, Post, Patch, Param, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Patch, Param, Query, UseGuards } from '@nestjs/common';
 import { AddressDTO, CityDTO, CountryDTO, ProvinceDTO } from 'src/apps/address/dtos/address.dto';
 import { CreateAddressBody } from './middleware/address.body';
 import { AddressService } from './address.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('address')
+@UseGuards(AuthGuard('refresh'))
 @ApiTags('Address')
 export class AddressController {
     constructor(
         private addressService: AddressService
     ) { }
 
+	@ApiResponse({ status: 201, type: AddressDTO })
     @Post()
     async createAddress(@Body() body: CreateAddressBody): Promise<AddressDTO> {
 
@@ -19,6 +22,7 @@ export class AddressController {
         return createdAddress;
     }
 
+	@ApiResponse({ status: 201, type: AddressDTO })
     @Patch('/:id')
     async updateAddress(@Body() body: CreateAddressBody, @Param() params: any): Promise<AddressDTO> {
 
@@ -29,6 +33,7 @@ export class AddressController {
         return updatedAddress;
     }
 
+	@ApiResponse({ status: 200, type: CityDTO, isArray: true })
     @Get('city')
     async getCities(@Query('name') name: string, @Query('province') province: string): Promise<CityDTO[]> {
 
@@ -37,6 +42,7 @@ export class AddressController {
         return cityList;
     }
 
+	@ApiResponse({ status: 200, type: ProvinceDTO, isArray: true })
     @Get('province')
     async getProvincies(@Query('name') name: string, @Query('country') country: string): Promise<ProvinceDTO[]> {
 
@@ -45,6 +51,7 @@ export class AddressController {
         return provinceList;
     }
 
+	@ApiResponse({ status: 200, type: CountryDTO, isArray: true })
     @Get('country')
     async getCountryByName(@Query('name') name: any): Promise<CountryDTO[]> {
 

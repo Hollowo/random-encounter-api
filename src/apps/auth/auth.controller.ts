@@ -8,7 +8,7 @@ import { UserAlreadyExist, UserNotFoundException } from 'src/middlewares/HttpExc
 import { EncoderHelper } from 'src/util/encoder.helper';
 import { AuthGuard } from '@nestjs/passport';
 import { LoginHandler } from 'src/util/login.handler';
-import { ApiPropertyOptional, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiPropertyOptional, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('auth')
 @ApiTags('Authentication/User Management')
@@ -18,6 +18,7 @@ export class AuthController {
 		private loginHandler: LoginHandler
 	) { }
 
+	@ApiResponse({ status: 201, type: CompleteUserDTO })
 	@Post('user')
 	async createCompleteUser(@Body() body: CreateCompleteUserBody): Promise<CompleteUserDTO> {
 
@@ -38,6 +39,7 @@ export class AuthController {
 		}
 	}
 
+	@ApiResponse({ status: 201, type: TokenDTO })
 	@UseGuards(AuthGuard('local'))
 	@Post('login')
 	async makeLogin(@Req() req, @Body() body: CreateLoginBody): Promise<TokenDTO> {
@@ -51,21 +53,13 @@ export class AuthController {
 		}
 	}
 
-	@UseGuards(AuthGuard('refresh'))
-	@ApiQuery({ required: false, name: 'query', description: 'User ID, Name or Email'})
-	@Get('user')
-	async getUser(query: string): Promise<CompleteUserDTO[]> {
-		const completeUser: CompleteUserDTO[] = await this.authService.getUser(query);
-
-		return completeUser;
-	}
-
+	@ApiResponse({ status: 201, type: UserDTO })
 	@UseGuards(AuthGuard('refresh'))
 	@Patch('user/:id')
 	async updateUser(@Body() body: UpdateUserBody, @Param() params: any): Promise<UserDTO> {
 
 		const { id } = params;
-		const userToUpdate: CompleteUserDTO = await this.authService.getUserById(id);
+		const userToUpdate: CompleteUserDTO = await this.authService.getCompleteUserById(id);
 
 		var createdUser: UserDTO = {} as UserDTO;
 		if (userToUpdate) {
@@ -79,5 +73,15 @@ export class AuthController {
 		}
 
 		return createdUser;
+	}
+
+	@ApiQuery({ required: false, name: 'query', description: 'User ID, Name or Email'})
+	@ApiResponse({ status: 200, type: CompleteUserDTO, isArray: true })
+	@UseGuards(AuthGuard('refresh'))
+	@Get('user')
+	async getUser(query: string): Promise<CompleteUserDTO[]> {
+		const completeUser: CompleteUserDTO[] = await this.authService.getUser(query);
+
+		return completeUser;
 	}
 }

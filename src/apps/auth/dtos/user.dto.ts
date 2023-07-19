@@ -1,18 +1,39 @@
+import { ApiProperty, ApiResponseProperty } from '@nestjs/swagger';
 import { AddressDTO } from 'src/apps/address/dtos/address.dto';
 
-interface UserDTO {
+class UserDTO {
+	
+	@ApiProperty()
 	id: string;
-	createdAt: Date;
+
+	@ApiProperty()
+	createdAt?: Date;
+
+	@ApiProperty()
 	name: string;
+
+	@ApiProperty()
 	email: string;
+
+	@ApiProperty()
 	password?: string;
+
+	@ApiProperty()
 	role: string;
-	authorized: boolean;
-	addressId: string;
+
+	@ApiProperty()
+	authorized?: boolean;
+
+	@ApiProperty()
+	addressId?: string;
 }
 
-interface CompleteUserDTO {
+class CompleteUserDTO {
+	
+	@ApiProperty()
 	user: UserDTO;
+
+	@ApiProperty()
 	address: AddressDTO;
 }
 

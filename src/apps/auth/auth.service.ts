@@ -99,7 +99,7 @@ export class AuthService {
 		return loginResponse;
 	}
 
-	async getUserById(id: string): Promise<CompleteUserDTO> {
+	async getCompleteUserById(id: string): Promise<CompleteUserDTO> {
 
 		var completeUser: CompleteUserDTO = undefined;
 
@@ -131,6 +131,27 @@ export class AuthService {
 		});
 
 		return completeUser;
+	}
+
+	async getUserById(id: string): Promise<UserDTO> {
+
+		var userList: UserDTO = await this.prisma.user.findUnique({
+			select: {
+				id: true,
+				createdAt: true,
+				name: true,
+				email: true,
+				password: true,
+				role: true,
+				authorized: true,
+				addressId: true,
+			},
+			where: {
+				id: id
+			}
+		})
+
+		return userList;
 	}
 
 	async getUser(query: string): Promise<CompleteUserDTO[]> {

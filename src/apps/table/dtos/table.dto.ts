@@ -1,24 +1,46 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { CompleteUserDTO, UserDTO } from "src/apps/auth/dtos/user.dto";
 
-interface TableDTO {
+class TableDTO {
+	@ApiProperty()
     id: string;
+
+	@ApiProperty()
     createdAt: Date;
+
+	@ApiProperty()
     title: string;
+
+	@ApiProperty()
     description: string;
+
+	@ApiProperty()
     ownerId: string;
+
+	@ApiProperty()
     systemId: string;
 }
 
-interface TableParticipantDTO {
+class TableParticipantDTO {
+	@ApiProperty()
     tableId: string;
+
+	@ApiProperty()
     userId: string;
+
+	@ApiProperty()
     createdAt: Date;
 }
 
-interface CompleteTableDTO {
+class CompleteTableDTO {
+	@ApiProperty()
     table: TableDTO;
+
+	@ApiProperty()
     owner: CompleteUserDTO;
-    participants: CompleteUserDTO[];
+    
+	@ApiProperty()
+    participants: UserDTO[];
 }
 
 export {

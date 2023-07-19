@@ -1,28 +1,60 @@
-interface AddressDTO {
-    id: string;
-    createdAt: Date;
-    description: string;
-    city: CityDTO;
-    province: ProvinceDTO;
-    country: CountryDTO;
-}
+import { ApiProperty } from "@nestjs/swagger";
 
-interface CountryDTO {
+class CountryDTO {
+
+	@ApiProperty()
     id: string;
+
+	@ApiProperty()
     name: string;
+
+	@ApiProperty()
     flag: string;
 }
 
-interface ProvinceDTO {
+class ProvinceDTO {
+
+	@ApiProperty()
     id: string;
+
+	@ApiProperty()
     name: string;
+
+	@ApiProperty()
     country: CountryDTO;
 }
 
-interface CityDTO {
+class CityDTO {
+
+	@ApiProperty()
     id: string;
+
+	@ApiProperty()
     name: string;
+
+	@ApiProperty()
     province: ProvinceDTO;
+}
+
+class AddressDTO {
+    
+	@ApiProperty()
+    id: string;
+
+	@ApiProperty()
+    createdAt: Date;
+
+	@ApiProperty()
+    description: string;
+
+	@ApiProperty()
+    city: CityDTO;
+
+	@ApiProperty()
+    province: ProvinceDTO;
+
+	@ApiProperty()
+    country: CountryDTO;
 }
 
 export {
