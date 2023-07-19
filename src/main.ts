@@ -1,10 +1,30 @@
 import { NestFactory } from '@nestjs/core';
+import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { AUTH_PORT } from './constants/PORTS';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
+const logger = new Logger('Server');
 
 async function bootstrap() {
-	const app = await NestFactory.create(AppModule);
-	app.useGlobalPipes(new ValidationPipe());
-	await app.listen(3001);
+	const app: INestApplication = await NestFactory.create(AppModule);
+
+	const config = new DocumentBuilder()
+		.setTitle('Random Encounter API')
+		.setVersion('0.0.1')
+		.build();
+
+	const document = SwaggerModule.createDocument(app, config);
+	SwaggerModule.setup('api', app, document, {
+		swaggerOptions: {
+			supportedSubmitMethods: []
+		}
+	});
+
+	app.useGlobalPipes(new ValidationPipe({
+		whitelist: true,
+		forbidNonWhitelisted: true
+	}));
+	await app.listen(AUTH_PORT).finally(() => { logger.log(`Server running in port ${AUTH_PORT}`) })
 }
 bootstrap();

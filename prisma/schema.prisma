@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Address {
-  id          String   @id @map("id")
+  id          String   @id @unique @map("id")
   createdAt   DateTime @default(now()) @map("created_at")
   description String   @map("description")
   cityId      String   @map("city_id")
@@ -23,7 +23,7 @@ model Address {
 }
 
 model Country {
-  id       String     @id @map("id")
+  id       String     @id @unique @map("id")
   name     String     @map("name")
   flag     String     @map("flag")
   Address  Address[]
@@ -33,7 +33,7 @@ model Country {
 }
 
 model Province {
-  id        String    @id @map("id")
+  id        String    @id @unique @map("id")
   name      String    @map("name")
   countryId String    @map("country_id")
   Address   Address[]
@@ -44,7 +44,7 @@ model Province {
 }
 
 model City {
-  id         String    @id @map("id")
+  id         String    @id @unique @map("id")
   name       String    @map("name")
   provinceId String    @map("province_id")
   Address    Address[]
@@ -54,16 +54,94 @@ model City {
 }
 
 model User {
-  id         String   @id @map("id")
-  createdAt  DateTime @default(now()) @map("created_at")
-  name       String   @map("name")
-  email      String   @map("email")
-  role       Role     @map("role")
-  authorized Boolean  @map("authorized")
-  addressId  String   @map("address_id")
-  address    Address  @relation(fields: [addressId], references: [id])
+  id               String             @id @unique @map("id")
+  createdAt        DateTime           @default(now()) @map("created_at")
+  name             String             @map("name")
+  email            String             @map("email")
+  role             Role               @map("role")
+  authorized       Boolean            @map("authorized")
+  addressId        String             @map("address_id")
+  password         String             @map("password")
+  refreshToken     String             @map("refresh_token")
+  address          Address            @relation(fields: [addressId], references: [id])
+  Table            Table[]
+  TableParticipant TableParticipant[]
+  TableInvites     TableInvite[]
 
   @@map("user")
+}
+
+model System {
+  id        String      @id @unique @map("id")
+  name      String      @map("name")
+  Table     Table[]
+  Encounter Encounter[]
+
+  @@map("system")
+}
+
+model Table {
+  id               String             @id @unique @map("id")
+  createdAt        DateTime           @default(now()) @map("created_at")
+  title            String             @map("title")
+  description      String             @map("description")
+  ownerId          String             @map("owner_id")
+  systemId         String             @map("system_id")
+  user             User               @relation(fields: [ownerId], references: [id])
+  system           System             @relation(fields: [systemId], references: [id])
+  TableParticipant TableParticipant[]
+  TableInvites     TableInvite[]
+  Encounter        Encounter[]
+  Session          Session[]
+
+  @@map("table")
+}
+
+model Session {
+  id        String   @id @unique @map("id")
+  createdAt DateTime @default(now()) @map("created_at")
+  tableId   String   @map("table_id")
+  date      DateTime @map("date")
+  table     Table    @relation(fields: [tableId], references: [id])
+
+  @@map("session")
+}
+
+model TableParticipant {
+  tableId   String   @map("table_id")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  table     Table    @relation(fields: [tableId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@id([tableId, userId])
+  @@map("table_participant")
+}
+
+model TableInvite {
+  tableId       String   @map("table_id")
+  userId        String   @map("user_id")
+  isJoinRequest Boolean  @map("is_join_request")
+  checked       Boolean  @map("checked")
+  createdAt     DateTime @default(now()) @map("created_at")
+  table         Table    @relation(fields: [tableId], references: [id])
+  user          User     @relation(fields: [userId], references: [id])
+
+  @@id([tableId, userId])
+  @@map("table_invites")
+}
+
+model Encounter {
+  id          String   @id @unique @map("id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  level       Float    @map("level")
+  description String   @map("description")
+  tableId     String   @map("table_id")
+  systemId    String   @map("system_id")
+  table       Table    @relation(fields: [tableId], references: [id])
+  system      System   @relation(fields: [systemId], references: [id])
+
+  @@map("encounter")
 }
 
 enum Role {
