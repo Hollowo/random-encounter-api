@@ -4,7 +4,7 @@ import { CreateCompleteUserBody, UpdateUserBody } from './middlewares/user.body'
 import { CompleteUserDTO, UserDTO } from './dtos/user.dto';
 import { CreateLoginBody } from './middlewares/authentication.body';
 import { TokenDTO } from './dtos/authentication.dto';
-import { UserAlreadyExist, UserNotFoundException } from 'src/middlewares/HttpException';
+import { UserAlreadyExistException, UserNotFoundException } from 'src/middlewares/http.exception';
 import { EncoderHelper } from 'src/util/encoder.helper';
 import { AuthGuard } from '@nestjs/passport';
 import { LoginHandler } from 'src/util/login.handler';
@@ -33,16 +33,15 @@ export class AuthController {
 			const createdCompleteUser: CompleteUserDTO = await this.authService.createCompleteUser(user, address);
 
 			return createdCompleteUser;
-
 		} else {
-			throw new UserAlreadyExist;
+			throw new UserAlreadyExistException;
 		}
 	}
 
 	@ApiResponse({ status: 201, type: TokenDTO })
 	@UseGuards(AuthGuard('local'))
 	@Post('login')
-	async makeLogin(@Req() req, @Body() body: CreateLoginBody): Promise<TokenDTO> {
+	async makeLogin(@Req() req: any, @Body() body: CreateLoginBody): Promise<TokenDTO> {
 		if (req.user) {
 			const tokenPayload: TokenDTO = await this.loginHandler.generateJwtToken(req.user)
 
@@ -55,11 +54,10 @@ export class AuthController {
 
 	@ApiResponse({ status: 201, type: UserDTO })
 	@UseGuards(AuthGuard('refresh'))
-	@Patch('user/:id')
-	async updateUser(@Body() body: UpdateUserBody, @Param() params: any): Promise<UserDTO> {
+	@Patch('user/:userId')
+	async updateUser(@Body() body: UpdateUserBody, @Param('userId') userId: any): Promise<UserDTO> {
 
-		const { id } = params;
-		const userToUpdate: CompleteUserDTO = await this.authService.getCompleteUserById(id);
+		const userToUpdate: CompleteUserDTO = await this.authService.getCompleteUserById(userId);
 
 		var createdUser: UserDTO = {} as UserDTO;
 		if (userToUpdate) {
@@ -67,7 +65,7 @@ export class AuthController {
 			if (body.password)
 				body.password = await EncoderHelper.encode(body.password, 12)
 
-			createdUser = await this.authService.updateUser(id, body);
+			createdUser = await this.authService.updateUser(userId, body);
 		} else {
 			throw new UserNotFoundException
 		}
@@ -79,9 +77,7 @@ export class AuthController {
 	@ApiResponse({ status: 200, type: CompleteUserDTO, isArray: true })
 	@UseGuards(AuthGuard('refresh'))
 	@Get('user')
-	async getUser(query: string): Promise<CompleteUserDTO[]> {
-		const completeUser: CompleteUserDTO[] = await this.authService.getUser(query);
-
-		return completeUser;
+	async getUser(@Query('query') query: string): Promise<CompleteUserDTO[]> {
+		return await this.authService.getUser(query);
 	}
 }

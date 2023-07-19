@@ -155,11 +155,13 @@ export class AdminController {
 
 	@Post('system')
 	async createSystem(@Body() body: any) {
-		await this.prisma.system.create({
-			data: {
-				id: randomUUID(),
-				name: body.name
-			}
-		})
+    body.forEach(async system => {
+      await this.prisma.system.create({
+        data: {
+          id: randomUUID(),
+          name: system.name
+        }
+      })
+    })
 	}
 }

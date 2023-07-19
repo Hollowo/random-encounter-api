@@ -1,7 +1,7 @@
-import { Injectable, Req } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { Strategy } from "passport-local";
-import { InvalidCredentialsException, InvalidRefreshToken, UserNotFoundException } from "src/middlewares/HttpException";
+import { InvalidCredentialsException, UserNotFoundException } from "src/middlewares/http.exception";
 import { AuthDataDTO } from "../dtos/authentication.dto";
 import { AuthService } from "../auth.service";
 import { compareSync } from 'bcrypt';

@@ -54,19 +54,19 @@ model City {
 }
 
 model User {
-  id               String             @id @unique @map("id")
-  createdAt        DateTime           @default(now()) @map("created_at")
-  name             String             @map("name")
-  email            String             @map("email")
-  role             Role               @map("role")
-  authorized       Boolean            @map("authorized")
-  addressId        String             @map("address_id")
-  password         String             @map("password")
-  refreshToken     String             @map("refresh_token")
-  address          Address            @relation(fields: [addressId], references: [id])
-  Table            Table[]
-  TableParticipant TableParticipant[]
-  TableInvites     TableInvite[]
+  id           String        @id @unique @map("id")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  name         String        @map("name")
+  email        String        @map("email")
+  role         Role          @map("role")
+  authorized   Boolean       @map("authorized")
+  addressId    String        @map("address_id")
+  password     String        @map("password")
+  refreshToken String        @map("refresh_token")
+  address      Address       @relation(fields: [addressId], references: [id])
+  Table        Table[]
+  TablePlayer  TablePlayer[]
+  TableInvites TableInvite[]
 
   @@map("user")
 }
@@ -81,18 +81,19 @@ model System {
 }
 
 model Table {
-  id               String             @id @unique @map("id")
-  createdAt        DateTime           @default(now()) @map("created_at")
-  title            String             @map("title")
-  description      String             @map("description")
-  ownerId          String             @map("owner_id")
-  systemId         String             @map("system_id")
-  user             User               @relation(fields: [ownerId], references: [id])
-  system           System             @relation(fields: [systemId], references: [id])
-  TableParticipant TableParticipant[]
-  TableInvites     TableInvite[]
-  Encounter        Encounter[]
-  Session          Session[]
+  id           String        @id @unique @map("id")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  title        String        @map("title")
+  description  String        @map("description")
+  imageUrl     String        @map("image_url")
+  ownerId      String        @map("owner_id")
+  systemId     String        @map("system_id")
+  user         User          @relation(fields: [ownerId], references: [id])
+  system       System        @relation(fields: [systemId], references: [id])
+  TablePlayer  TablePlayer[]
+  TableInvites TableInvite[]
+  Encounter    Encounter[]
+  Session      Session[]
 
   @@map("table")
 }
@@ -107,7 +108,7 @@ model Session {
   @@map("session")
 }
 
-model TableParticipant {
+model TablePlayer {
   tableId   String   @map("table_id")
   userId    String   @map("user_id")
   createdAt DateTime @default(now()) @map("created_at")
@@ -115,7 +116,7 @@ model TableParticipant {
   user      User     @relation(fields: [userId], references: [id])
 
   @@id([tableId, userId])
-  @@map("table_participant")
+  @@map("table_player")
 }
 
 model TableInvite {

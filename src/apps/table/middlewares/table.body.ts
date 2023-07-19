@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty, IsOptional } from "class-validator";
 
 export class CreateTableBody {
 
@@ -19,9 +19,15 @@ export class CreateTableBody {
     @ApiProperty()
     systemId: string;
 
+    @IsOptional()
+    @ApiProperty({ required: false })
+    imageUrl: string;
+
 }
 
-export class CreateTableParticipantBody {
+export class UpdateTableBody extends CreateTableBody {}
+
+export class CreateTablePlayerBody {
 
     @IsNotEmpty()
     @ApiProperty()

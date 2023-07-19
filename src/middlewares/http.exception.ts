@@ -6,25 +6,31 @@ class UserNotFoundException extends HttpException {
     }
 }
 
+class UserOrTableNotFoundException extends HttpException {
+    constructor() {
+        super('User or/and Table not found', 404);
+    }
+}
+
 class InvalidCredentialsException extends HttpException {
     constructor() {
         super('Invalid credentials', 401)
     }
 }
 
-class InvalidRefreshToken extends HttpException {
+class InvalidRefreshTokenException extends HttpException {
     constructor() {
         super('Invalid refresh token', 401)
     }
 }
 
-class UserAlreadyExist extends HttpException {
+class UserAlreadyExistException extends HttpException {
     constructor() {
         super('Email already in use', 409)
     }
 }
 
-class UserAlreadyInTheTable extends HttpException {
+class UserAlreadyInTheTableException extends HttpException {
     constructor() {
         super('User already in the table', 409)
     }
@@ -33,7 +39,8 @@ class UserAlreadyInTheTable extends HttpException {
 export {
     UserNotFoundException,
     InvalidCredentialsException,
-    InvalidRefreshToken,
-    UserAlreadyExist,
-    UserAlreadyInTheTable
+    InvalidRefreshTokenException,
+    UserAlreadyExistException,
+    UserAlreadyInTheTableException,
+    UserOrTableNotFoundException
 };
