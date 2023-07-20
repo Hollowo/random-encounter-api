@@ -237,10 +237,19 @@ export class AddressService {
                     mode: 'insensitive'
                 },
                 country: {
-                    name: {
-                        contains: countryName,
-                        mode: 'insensitive'
-                    }
+                    OR: [
+                        {
+                            name: {
+                                contains: countryName,
+                                mode: 'insensitive'
+                            }
+                        },
+                        {
+                            id: {
+                                equals: countryName
+                            }
+                        }
+                    ]
                 }
             }
         })
