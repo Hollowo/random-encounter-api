@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty, IsOptional } from "class-validator";
 
 export class CreateAddressBody {
     
@@ -7,11 +7,11 @@ export class CreateAddressBody {
 	@ApiPropertyOptional()
     description: string;
 
-    @IsNotEmpty()
+    @IsOptional()
 	@ApiProperty()
     cityId: string;
 
-    @IsNotEmpty()
+    @IsOptional()
 	@ApiProperty()
     provinceId: string;
 

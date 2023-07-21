@@ -21,7 +21,7 @@ export class AuthController {
 	@ApiResponse({ status: 201, type: CompleteUserDTO })
 	@Post('user')
 	async createCompleteUser(@Body() body: CreateCompleteUserBody): Promise<CompleteUserDTO> {
-
+		console.log(body)
 		const { user, address } = body;
 
 		const existentUser: CompleteUserDTO[] = await this.authService.getUser(user.email);
