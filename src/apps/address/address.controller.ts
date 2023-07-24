@@ -11,6 +11,18 @@ export class AddressController {
         private readonly addressService: AddressService
     ) { }
 
+    @ApiResponse({ status: 201, type: AddressDTO })
+    @Post()
+    async createAddress(@Body() body: CreateAddressBody): Promise<AddressDTO> {
+        return await this.addressService.createAddress(body)
+    }
+
+    @ApiResponse({ status: 201, type: AddressDTO })
+    @Patch('/:addressId')
+    async updateAddress(@Body() body: CreateAddressBody, @Param('addressId') addressId: any): Promise<AddressDTO> {
+        return await this.addressService.updateAddress(addressId, body);
+    }
+
     @ApiResponse({ status: 200, type: CityDTO, isArray: true })
     @Get('city')
     async getCities(@Query('name') name: string, @Query('province') province: string): Promise<CityDTO[]> {
@@ -27,18 +39,6 @@ export class AddressController {
     @Get('country')
     async getCountryByName(@Query('name') name: any): Promise<CountryDTO[]> {
         return await this.addressService.getCountries(name);
-    }
-
-    @ApiResponse({ status: 201, type: AddressDTO })
-    @Post()
-    async createAddress(@Body() body: CreateAddressBody): Promise<AddressDTO> {
-        return await this.addressService.createAddress(body)
-    }
-
-    @ApiResponse({ status: 201, type: AddressDTO })
-    @Patch('/:addressId')
-    async updateAddress(@Body() body: CreateAddressBody, @Param('addressId') addressId: any): Promise<AddressDTO> {
-        return await this.addressService.updateAddress(addressId, body);
     }
 
     @ApiResponse({ status: 200, type: CityDTO, isArray: true })
