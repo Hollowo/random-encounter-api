@@ -170,7 +170,7 @@ export class AuthService {
 					authorized: true,
 					addressId: true,
 				},
-				where: query
+				where: query 
 					? {
 						OR: [
 							{
@@ -203,6 +203,7 @@ export class AuthService {
 						user: user,
 						address: userAddress
 					})
+
 				})
 			)
 
