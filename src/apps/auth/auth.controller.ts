@@ -24,7 +24,7 @@ export class AuthController {
 		console.log(body)
 		const { user, address } = body;
 
-		const existentUser: CompleteUserDTO[] = await this.authService.getUser(user.email);
+		const existentUser: CompleteUserDTO[] = await this.authService.getCompleteUser(user.email);
 
 		if (!existentUser.length) {
 
@@ -76,8 +76,17 @@ export class AuthController {
 	@ApiQuery({ required: false, name: 'query', description: 'User ID, Name or Email'})
 	@ApiResponse({ status: 200, type: CompleteUserDTO, isArray: true })
 	@UseGuards(AuthGuard('refresh'))
+	@Get('complete-user')
+	async getCompleteUser(@Query('query') query: string): Promise<CompleteUserDTO[]> {
+		return await this.authService.getCompleteUser(query);
+	}
+
+	@ApiQuery({ required: false, name: 'query', description: 'User ID, Name or Email'})
+	@ApiResponse({ status: 200, type: UserDTO, isArray: true })
+	@UseGuards(AuthGuard('refresh'))
 	@Get('user')
-	async getUser(@Query('query') query: string): Promise<CompleteUserDTO[]> {
+	async getUser(@Query('query') query: string): Promise<UserDTO[]> {
 		return await this.authService.getUser(query);
 	}
+
 }

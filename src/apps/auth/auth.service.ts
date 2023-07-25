@@ -154,7 +154,7 @@ export class AuthService {
 		return userList;
 	}
 
-	async getUser(query: string): Promise<CompleteUserDTO[]> {
+	async getCompleteUser(query: string): Promise<CompleteUserDTO[]> {
 
 		var completeUserList: CompleteUserDTO[] = [];
 
@@ -210,6 +210,48 @@ export class AuthService {
 		});
 
 		return completeUserList;
+	}
+
+	async getUser(query: string): Promise<UserDTO[]> {
+
+		const userList: UserDTO[] = await this.prisma.user.findMany({
+			select: {
+				id: true,
+				createdAt: true,
+				name: true,
+				email: true,
+				password: true,
+				role: true,
+				authorized: true,
+				addressId: true,
+			},
+			where: query 
+				? {
+					OR: [
+						{
+							id: {
+								contains: query,
+								mode: 'insensitive'
+							},
+						},
+						{
+							email: {
+								contains: query,
+								mode: 'insensitive'
+							},
+						},
+						{
+							name: {
+								contains: query,
+								mode: 'insensitive'
+							},
+						},
+					]
+				}
+				: {}
+		})
+
+		return userList;
 	}
 
 	async updateUser(id: string, user: UpdateUserBody): Promise<UserDTO> {

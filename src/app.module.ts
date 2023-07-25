@@ -21,7 +21,7 @@ import { TableService } from './apps/table/table.service';
 		PassportModule,
 		JwtModule.register({
 			privateKey: process.env.SECRET_KEY,
-			signOptions: { expiresIn: '60s' }
+			signOptions: { expiresIn: '7 days' }
 		})
 	],
 	controllers: [AuthController, AddressController, AdminController, TableController],
