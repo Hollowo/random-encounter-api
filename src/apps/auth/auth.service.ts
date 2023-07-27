@@ -8,6 +8,10 @@ import { CreateAddressBody } from 'src/apps/address/middleware/address.body';
 import { AuthDataDTO } from './dtos/authentication.dto';
 import { AddressService } from '../address/address.service';
 
+const randomHexColor = () => {
+	return '#' + ('000000' + Math.floor(Math.random()*16777215).toString(16)).slice(-6)
+};
+
 @Injectable()
 export class AuthService {
 	constructor(
@@ -44,7 +48,8 @@ export class AuthService {
 				role: user.role,
 				addressId: user.addressId,
 				authorized: false,
-				refreshToken: ''
+				refreshToken: '',
+				colorHex: randomHexColor(),
 			},
 			select: {
 				id: true,
@@ -55,6 +60,7 @@ export class AuthService {
 				role: true,
 				authorized: true,
 				addressId: true,
+				colorHex: true,
 			},
 		});
 
@@ -114,6 +120,7 @@ export class AuthService {
 					role: true,
 					authorized: true,
 					addressId: true,
+					colorHex: true,
 				},
 				where: {
 					id: id
@@ -145,6 +152,7 @@ export class AuthService {
 				role: true,
 				authorized: true,
 				addressId: true,
+				colorHex: true,
 			},
 			where: {
 				id: id
@@ -169,6 +177,7 @@ export class AuthService {
 					role: true,
 					authorized: true,
 					addressId: true,
+					colorHex: true,
 				},
 				where: query 
 					? {
@@ -224,6 +233,7 @@ export class AuthService {
 				role: true,
 				authorized: true,
 				addressId: true,
+				colorHex: true,
 			},
 			where: query 
 				? {

@@ -63,6 +63,7 @@ model User {
   addressId    String        @map("address_id")
   password     String        @map("password")
   refreshToken String        @map("refresh_token")
+  colorHex     String        @map("color_hex")
   address      Address       @relation(fields: [addressId], references: [id])
   Table        Table[]
   TablePlayer  TablePlayer[]

@@ -26,6 +26,9 @@ class UserDTO {
 	authorized?: boolean;
 
 	@ApiProperty()
+    colorHex?: string;
+
+	@ApiProperty()
 	addressId?: string;
 }
 
