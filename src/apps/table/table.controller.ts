@@ -96,6 +96,12 @@ export class TableController {
         return await this.tableService.getTable(tableId);
     }
 
+	@ApiResponse({ status: 200, type: CompleteTableDTO, isArray: true })
+    @Get('/owner/:ownerId')
+    async getTableByOwner(@Param('ownerId') ownerId: string): Promise<CompleteTableDTO[]> {
+        return await this.tableService.getTableByOwnerId(ownerId);
+    }
+
 	@ApiResponse({ status: 200, type: TableInviteDTO, isArray: true })
     @Get('invites/:userId')
     async getUserInvites(@Param('userId') userId: string): Promise<TableInviteDTO[]> {

@@ -165,6 +165,40 @@ export class TableService {
         return completeTable;
     }
 
+    async getTableByOwnerId(ownerId: string): Promise<CompleteTableDTO[]> {
+        
+        const completeTables: CompleteTableDTO[] = []
+
+        const tables: TableDTO[] = await this.prisma.table.findMany({
+            select: {
+                id: true,
+                createdAt: true,
+                title: true,
+                description: true,
+                ownerId: true,
+                systemId: true,
+            }, 
+            where: {
+                ownerId: ownerId
+            }
+        })
+
+        const owner: CompleteUserDTO = await this.authService.getCompleteUserById(ownerId);
+        
+        await Promise.all(
+            tables.map( async table => { 
+                const players: UserDTO[] = await this.getTablePlayers(table.id);
+                completeTables.push({
+                    table,
+                    owner,
+                    players
+                })
+            })
+        )
+        
+        return completeTables;
+    }
+
     async getTablePlayers(tableId: string): Promise<UserDTO[]> {
         const playerList: UserDTO[] = await this.prisma.user.findMany({
             select: {
