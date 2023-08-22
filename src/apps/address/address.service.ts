@@ -281,10 +281,14 @@ export class AddressService {
                 flag: true
             },
             where: {
-                name: {
-                    contains: name,
-                    mode: 'insensitive'
-                },
+                OR: [
+                    {
+                        name: {
+                            contains: name,
+                            mode: 'insensitive'
+                        },
+                    }
+                ]
 
             }
         })
