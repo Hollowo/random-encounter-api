@@ -6,13 +6,13 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('address')
-@UseGuards(AuthGuard('refresh'))
 @ApiTags('Address')
 export class AddressController {
     constructor(
         private addressService: AddressService
     ) { }
 
+    @UseGuards(AuthGuard('refresh'))
 	@ApiResponse({ status: 201, type: AddressDTO })
     @Post()
     async createAddress(@Body() body: CreateAddressBody): Promise<AddressDTO> {
@@ -22,6 +22,7 @@ export class AddressController {
         return createdAddress;
     }
 
+    @UseGuards(AuthGuard('refresh'))
 	@ApiResponse({ status: 201, type: AddressDTO })
     @Patch('/:id')
     async updateAddress(@Body() body: CreateAddressBody, @Param() params: any): Promise<AddressDTO> {

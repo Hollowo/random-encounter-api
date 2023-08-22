@@ -207,10 +207,17 @@ export class AddressService {
                     mode: 'insensitive'
                 },
                 province: {
-                    name: {
-                        contains: provName,
-                        mode: 'insensitive'
-                    }
+                    OR: [
+                        {
+                            name: {
+                                contains: provName,
+                                mode: 'insensitive'
+                            }
+                        },
+                        {
+                            id: provName
+                        }
+                    ]
                 }
             }
         })
@@ -237,10 +244,18 @@ export class AddressService {
                     mode: 'insensitive'
                 },
                 country: {
-                    name: {
-                        contains: countryName,
-                        mode: 'insensitive'
-                    }
+                    OR: [
+                        {
+                            name: {
+                                contains: countryName,
+                                mode: 'insensitive'
+                            }
+                        },
+                        {
+                            id: countryName
+                        }
+                    ]
+                    
                 }
             }
         })
@@ -256,10 +271,14 @@ export class AddressService {
                 flag: true
             },
             where: {
-                name: {
-                    contains: name,
-                    mode: 'insensitive'
-                },
+                OR: [
+                    {
+                        name: {
+                            contains: name,
+                            mode: 'insensitive'
+                        },
+                    }
+                ]
 
             }
         })
