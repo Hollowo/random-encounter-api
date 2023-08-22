@@ -14,21 +14,18 @@ import { LoginHandler } from './util/login.handler';
 import { RefreshStrategy } from './apps/auth/strategies/refresh.strategy';
 import { TableController } from './apps/table/table.controller';
 import { TableService } from './apps/table/table.service';
+import { AuthModule } from './apps/auth/auth.module';
 
 @Module({
 	imports: [
 		ConfigModule.forRoot(),
 		PassportModule,
-		JwtModule.register({
-			privateKey: process.env.SECRET_KEY,
-			signOptions: { expiresIn: '60s' }
-		})
+		AuthModule
 	],
-	controllers: [AuthController, AddressController, AdminController, TableController],
+	controllers: [AddressController, AdminController, TableController],
 	providers: [
 		PrismaService, AuthService, AddressService, AdminService, TableService,
 		LocalStrategy, RefreshStrategy,
-		LoginHandler
 	],
 })
 export class AppModule {

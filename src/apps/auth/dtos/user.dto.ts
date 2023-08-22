@@ -1,8 +1,9 @@
 import { ApiProperty, ApiResponseProperty } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 import { AddressDTO } from 'src/apps/address/dtos/address.dto';
 
 class UserDTO {
-	
+
 	@ApiProperty()
 	id: string;
 
@@ -19,10 +20,13 @@ class UserDTO {
 	password?: string;
 
 	@ApiProperty()
-	role: string;
+	role: Role;
 
 	@ApiProperty()
 	authorized?: boolean;
+
+	@ApiProperty()
+    colorHex?: string;
 
 	@ApiProperty()
 	addressId?: string;

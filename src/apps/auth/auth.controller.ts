@@ -4,7 +4,7 @@ import { CreateCompleteUserBody, UpdateUserBody } from './middlewares/user.body'
 import { CompleteUserDTO, UserDTO } from './dtos/user.dto';
 import { CreateLoginBody } from './middlewares/authentication.body';
 import { TokenDTO } from './dtos/authentication.dto';
-import { UserAlreadyExist, UserNotFoundException } from 'src/middlewares/HttpException';
+import { UserAlreadyExistException, UserNotFoundException } from 'src/middlewares/http.exception';
 import { EncoderHelper } from 'src/util/encoder.helper';
 import { AuthGuard } from '@nestjs/passport';
 import { LoginHandler } from 'src/util/login.handler';
@@ -21,10 +21,10 @@ export class AuthController {
 	@ApiResponse({ status: 201, type: CompleteUserDTO })
 	@Post('user')
 	async createCompleteUser(@Body() body: CreateCompleteUserBody): Promise<CompleteUserDTO> {
-
+		console.log(body)
 		const { user, address } = body;
 
-		const existentUser: CompleteUserDTO[] = await this.authService.getUser(user.email);
+		const existentUser: CompleteUserDTO[] = await this.authService.getCompleteUser(user.email);
 
 		if (!existentUser.length) {
 
@@ -33,16 +33,15 @@ export class AuthController {
 			const createdCompleteUser: CompleteUserDTO = await this.authService.createCompleteUser(user, address);
 
 			return createdCompleteUser;
-
 		} else {
-			throw new UserAlreadyExist;
+			throw new UserAlreadyExistException;
 		}
 	}
 
 	@ApiResponse({ status: 201, type: TokenDTO })
 	@UseGuards(AuthGuard('local'))
 	@Post('login')
-	async makeLogin(@Req() req, @Body() body: CreateLoginBody): Promise<TokenDTO> {
+	async makeLogin(@Req() req: any, @Body() body: CreateLoginBody): Promise<TokenDTO> {
 		if (req.user) {
 			const tokenPayload: TokenDTO = await this.loginHandler.generateJwtToken(req.user)
 
@@ -55,11 +54,10 @@ export class AuthController {
 
 	@ApiResponse({ status: 201, type: UserDTO })
 	@UseGuards(AuthGuard('refresh'))
-	@Patch('user/:id')
-	async updateUser(@Body() body: UpdateUserBody, @Param() params: any): Promise<UserDTO> {
+	@Patch('user/:userId')
+	async updateUser(@Body() body: UpdateUserBody, @Param('userId') userId: any): Promise<UserDTO> {
 
-		const { id } = params;
-		const userToUpdate: CompleteUserDTO = await this.authService.getCompleteUserById(id);
+		const userToUpdate: CompleteUserDTO = await this.authService.getCompleteUserById(userId);
 
 		var createdUser: UserDTO = {} as UserDTO;
 		if (userToUpdate) {
@@ -67,7 +65,7 @@ export class AuthController {
 			if (body.password)
 				body.password = await EncoderHelper.encode(body.password, 12)
 
-			createdUser = await this.authService.updateUser(id, body);
+			createdUser = await this.authService.updateUser(userId, body);
 		} else {
 			throw new UserNotFoundException
 		}
@@ -78,10 +76,17 @@ export class AuthController {
 	@ApiQuery({ required: false, name: 'query', description: 'User ID, Name or Email'})
 	@ApiResponse({ status: 200, type: CompleteUserDTO, isArray: true })
 	@UseGuards(AuthGuard('refresh'))
-	@Get('user')
-	async getUser(query: string): Promise<CompleteUserDTO[]> {
-		const completeUser: CompleteUserDTO[] = await this.authService.getUser(query);
-
-		return completeUser;
+	@Get('complete-user')
+	async getCompleteUser(@Query('query') query: string): Promise<CompleteUserDTO[]> {
+		return await this.authService.getCompleteUser(query);
 	}
+
+	@ApiQuery({ required: false, name: 'query', description: 'User ID, Name or Email'})
+	@ApiResponse({ status: 200, type: UserDTO, isArray: true })
+	@UseGuards(AuthGuard('refresh'))
+	@Get('user')
+	async getUser(@Query('query') query: string): Promise<UserDTO[]> {
+		return await this.authService.getUser(query);
+	}
+
 }

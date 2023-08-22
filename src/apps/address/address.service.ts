@@ -202,23 +202,32 @@ export class AddressService {
                 }
             },
             where: {
-                name: {
-                    contains: name,
-                    mode: 'insensitive'
-                },
-                province: {
-                    OR: [
-                        {
-                            name: {
-                                contains: provName,
-                                mode: 'insensitive'
-                            }
+                OR: [
+                    {
+                        name: {
+                            contains: name,
+                            mode: 'insensitive'
                         },
-                        {
-                            id: provName
+                    },
+                    {
+                        province: {
+                            OR: [
+                                {
+                                    name: {
+                                        contains: provName,
+                                        mode: 'insensitive'
+                                    }
+                                },
+                                {
+                                    id: {
+                                        equals: provName,
+                                    }
+                                }
+                            ]
+
                         }
-                    ]
-                }
+                    }
+                ]
             }
         })
 
@@ -252,10 +261,11 @@ export class AddressService {
                             }
                         },
                         {
-                            id: countryName
+                            id: {
+                                equals: countryName
+                            }
                         }
                     ]
-                    
                 }
             }
         })

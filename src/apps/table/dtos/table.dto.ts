@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { IsArray } from "class-validator";
 import { CompleteUserDTO, UserDTO } from "src/apps/auth/dtos/user.dto";
 
 class TableDTO {
@@ -21,7 +22,7 @@ class TableDTO {
     systemId: string;
 }
 
-class TableParticipantDTO {
+class TablePlayerDTO {
 	@ApiProperty()
     tableId: string;
 
@@ -38,13 +39,13 @@ class CompleteTableDTO {
 
 	@ApiProperty()
     owner: CompleteUserDTO;
-    
-	@ApiProperty()
-    participants: UserDTO[];
+
+	@ApiProperty({ type: [UserDTO] })
+    players: UserDTO[];
 }
 
 export {
     TableDTO,
-    TableParticipantDTO,
+    TablePlayerDTO,
     CompleteTableDTO
 }

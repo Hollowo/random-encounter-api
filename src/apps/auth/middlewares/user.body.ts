@@ -35,13 +35,15 @@ export class CreateUserBody {
 	name: string;
 
 	@IsNotEmpty()
-	@IsEmail()
+	@IsEmail(undefined, {
+		message: "Please enter a valid email address"
+	})
 	@ApiProperty()
 	email: string;
 
 	@IsNotEmpty()
 	@Matches(RegExHelper.password, {
-		message: 'password too weak'
+		message: 'Password too weak'
 	})
 	@ApiProperty()
 	password: string;
