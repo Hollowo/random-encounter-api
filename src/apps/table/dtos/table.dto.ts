@@ -20,6 +20,9 @@ class TableDTO {
 
 	@ApiProperty()
     systemId: string;
+
+	@ApiProperty()
+    imageUrl: string;
 }
 
 class TablePlayerDTO {

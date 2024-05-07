@@ -64,7 +64,8 @@ export class TableService {
                 title: true,
                 description: true,
                 ownerId: true,
-                systemId: true
+                systemId: true,
+                imageUrl: true,
             }
         })
 
@@ -147,6 +148,7 @@ export class TableService {
                 description: true,
                 ownerId: true,
                 systemId: true,
+                imageUrl: true,
             }, 
             where: {
                 id: tableId
@@ -177,6 +179,7 @@ export class TableService {
                 description: true,
                 ownerId: true,
                 systemId: true,
+                imageUrl: true,
             }, 
             where: {
                 ownerId: ownerId
@@ -250,7 +253,8 @@ export class TableService {
                         title: true,
                         description: true,
                         ownerId: true,
-                        systemId: true
+                        systemId: true,
+                        imageUrl: true,
                     }
                 },
                 user: {
@@ -288,7 +292,8 @@ export class TableService {
                         title: true,
                         description: true,
                         ownerId: true,
-                        systemId: true
+                        systemId: true,
+                        imageUrl: true,
                     }
                 },
                 user: {
@@ -326,7 +331,8 @@ export class TableService {
                         title: true,
                         description: true,
                         ownerId: true,
-                        systemId: true
+                        systemId: true,
+                        imageUrl: true,
                     }
                 },
                 user: {
