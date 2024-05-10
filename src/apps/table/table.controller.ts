@@ -11,6 +11,9 @@ import { CreateTablePlayerBody } from './middlewares/table.body';
 import { UserDTO } from '../auth/dtos/user.dto';
 import { DeleteSuccess } from 'src/middlewares/http.responses';
 import { UserOrTableNotFoundException } from 'src/middlewares/http.exception';
+import { System } from '@prisma/client';
+import { UpdateUserBody } from '../auth/middlewares/user.body';
+import { UpdateSystemBody } from './middlewares/system.body';
 
 @Controller('table')
 @ApiTags('Tables')
@@ -132,6 +135,11 @@ export class TableController {
         } catch (ex) {
             throw ex
         }
+    }
+
+    @Patch('system/:systemId')
+    async updateSystem(@Param('systemId') systemId: string , @Body() body: UpdateSystemBody): Promise<SystemDTO>{
+        return await this.tableService.updateSystem(systemId, body)
     }
 
 }

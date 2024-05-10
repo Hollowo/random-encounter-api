@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Body, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/database/prisma.service';
 import { randomUUID } from 'node:crypto';
 import { AddressDTO } from 'src/apps/address/dtos/address.dto';
@@ -13,6 +13,7 @@ import { SystemDTO } from './dtos/system.dto';
 import { TableInviteDTO } from './dtos/invite.dto';
 import { UserAlreadyInTheTableException } from 'src/middlewares/http.exception';
 import { isNullOrUndefined } from 'node:util';
+import { UpdateSystemBody } from './middlewares/system.body';
 
 @Injectable()
 export class TableService {
@@ -88,6 +89,18 @@ export class TableService {
         return updatedTable;
     }
 
+    async updateSystem(systemId: string, system: UpdateSystemBody): Promise<SystemDTO> {
+        const updatedSystem = await this.prisma.system.update({
+            data:{
+                name: system.name
+            },
+            where:{
+                id: systemId    
+            }
+        })
+        return updatedSystem;
+    }
+        
     async createTablePlayers(tablePlayer: CreateTablePlayerBody[]): Promise<TablePlayerDTO[]> {
         var createdTablePlayers: TablePlayerDTO[] = [];
 
