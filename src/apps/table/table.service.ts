@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Body, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/database/prisma.service';
 import { randomUUID } from 'node:crypto';
 import { AddressDTO } from 'src/apps/address/dtos/address.dto';
@@ -11,8 +11,10 @@ import { AuthService } from '../auth/auth.service';
 import { TablePlayer, User } from '@prisma/client';
 import { SystemDTO } from './dtos/system.dto';
 import { TableInviteDTO } from './dtos/invite.dto';
-import { UserAlreadyInTheTableException } from 'src/middlewares/http.exception';
+import { SystemNotFoundException, UserAlreadyInTheTableException } from 'src/middlewares/http.exception';
 import { isNullOrUndefined } from 'node:util';
+import { UpdateSystemBody } from './middlewares/system.body';
+import { table } from 'node:console';
 
 @Injectable()
 export class TableService {
@@ -88,6 +90,18 @@ export class TableService {
         return updatedTable;
     }
 
+    async updateSystem(systemId: string, system: UpdateSystemBody): Promise<SystemDTO> {
+        const updatedSystem = await this.prisma.system.update({
+            data:{
+                name: system.name
+            },
+            where:{
+                id: systemId    
+            }
+        })
+        return updatedSystem;
+    }
+        
     async createTablePlayers(tablePlayer: CreateTablePlayerBody[]): Promise<TablePlayerDTO[]> {
         var createdTablePlayers: TablePlayerDTO[] = [];
 
@@ -389,6 +403,18 @@ export class TableService {
         })
     }
 
+    async deleteSystem(systemId: string) {
+        try {
+            return await this.prisma.system.delete({
+                where: {
+                    id: systemId
+                }
+            })       
+        } catch (ex) {
+            throw new SystemNotFoundException;   
+        }
+    }
+
     async userExistsOnTable(userId: string, tableId: string): Promise<boolean> {
         const isInviteChecked: boolean = (await this.getTableInvite(userId, tableId))?.checked;
                     
@@ -399,4 +425,36 @@ export class TableService {
         return isInviteChecked && existentPlayer;
     }
 
+    async getTableBySystemId(systemId: string): Promise<CompleteTableDTO[]> {
+
+        const completeTables: CompleteTableDTO[] = []
+
+        const tables: TableDTO[] = await this.prisma.table.findMany({
+            select: {
+                id: true,
+                createdAt: true,
+                title: true,
+                description: true,
+                ownerId: true,
+                systemId: true,
+                imageUrl: true,
+            },
+            where: {
+                systemId: systemId
+            }
+        })
+
+        await Promise.all(
+            tables.map( async table => {
+                const owner: CompleteUserDTO = await this.authService.getCompleteUserById(table.ownerId);
+                const players: UserDTO[] = await this.getTablePlayers(table.id);
+                completeTables.push({
+                    table,
+                    owner,
+                    players    
+                })
+            })
+        )
+        return completeTables;
+    }
 }

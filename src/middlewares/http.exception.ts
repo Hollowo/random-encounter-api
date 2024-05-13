@@ -12,6 +12,18 @@ class UserOrTableNotFoundException extends HttpException {
     }
 }
 
+class SystemNotFoundException extends HttpException {
+    constructor() {
+        super('System ID not found', 404);
+    }
+}
+
+class SystemInUseException extends HttpException {
+    constructor() {
+        super('System is being used in a table', 403);
+    }
+}
+
 class InvalidCredentialsException extends HttpException {
     constructor() {
         super('Invalid credentials', 401)
@@ -42,5 +54,7 @@ export {
     InvalidRefreshTokenException,
     UserAlreadyExistException,
     UserAlreadyInTheTableException,
-    UserOrTableNotFoundException
+    UserOrTableNotFoundException,
+    SystemNotFoundException,
+    SystemInUseException
 };

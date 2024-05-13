@@ -10,7 +10,12 @@ import { CreateTableInviteBody, UpdateTableInviteBody } from './middlewares/invi
 import { CreateTablePlayerBody } from './middlewares/table.body';
 import { UserDTO } from '../auth/dtos/user.dto';
 import { DeleteSuccess } from 'src/middlewares/http.responses';
-import { UserOrTableNotFoundException } from 'src/middlewares/http.exception';
+import { SystemInUseException, UserOrTableNotFoundException } from 'src/middlewares/http.exception';
+import { SystemNotFoundException } from 'src/middlewares/http.exception';
+import { System } from '@prisma/client';
+import { UpdateUserBody } from '../auth/middlewares/user.body';
+import { UpdateSystemBody } from './middlewares/system.body';
+import { get } from 'node:http';
 
 @Controller('table')
 @ApiTags('Tables')
@@ -108,6 +113,7 @@ export class TableController {
         return await this.tableService.getTableInvitesByUser(userId);
     }
 
+    
 	@ApiResponse({ status: 200, type: TableInviteDTO, isArray: true })
     @Get(':tableId/joins')
     async getTableJoinRequest(@Param('tableId') tableId: string): Promise<TableInviteDTO[]> {
@@ -134,4 +140,29 @@ export class TableController {
         }
     }
 
+    @Patch('system/:systemId')
+    async updateSystem(@Param('systemId') systemId: string , @Body() body: UpdateSystemBody): Promise<SystemDTO>{
+        return await this.tableService.updateSystem(systemId, body)
+    }
+
+    @Get('system/:systemId')
+    async getTableBySystemId(@Param('systemId') systemId: string,): Promise<CompleteTableDTO[]> {
+        return await this.tableService.getTableBySystemId(systemId);
+    }
+
+    @Delete('system/:systemId')
+    async deleteSystem(@Param('systemId') systemId: string,) {
+        try {
+            const tablesBySystem: CompleteTableDTO[] = await this.tableService.getTableBySystemId(systemId);
+
+            if (tablesBySystem.length == 0) {
+                const deleteSystem = await this.tableService.deleteSystem(systemId);
+                return DeleteSuccess;
+            } else {
+                throw new SystemInUseException;
+            }
+        } catch (ex) {
+            throw ex 
+        }
+    }     
 }
