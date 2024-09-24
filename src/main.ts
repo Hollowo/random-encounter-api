@@ -12,6 +12,7 @@ async function bootstrap() {
 	const config = new DocumentBuilder()
 		.setTitle('Random Encounter API')
 		.setVersion('0.0.1')
+		.sec
 		.build();
 
 	const document = SwaggerModule.createDocument(app, config);
